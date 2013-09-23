@@ -1,0 +1,31 @@
+.valid, .available {
+    color:green;
+}
+
+.invalid, .taken {
+    color:white;
+    background-color:red;
+    padding: 1px 3px 1px 3px;
+}
+
+
+.filter {
+    width:120px;
+}
+
+th.sort i {
+    margin-left:3px;
+    display:none;
+}
+
+th.sort#lastname i {
+    display:inline-block;
+}
+
+#domain {
+    margin-bottom:3px;
+}
+
+.nameinput {
+    margin-bottom:3px;
+}
