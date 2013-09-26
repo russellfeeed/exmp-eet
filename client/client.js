@@ -1,3 +1,11 @@
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
+String.prototype.clean = function() {
+    return this.replace(/'/g,'').replace(/\s/g,'');
+}
+
    Meteor.subscribe("alltheemails");
    
    var alloweddomains = [{domain: 'exertismicro-p.co.uk'},
@@ -6,8 +14,8 @@
     
 
   function resetSessionVars() {        
-      Session.set('firstname','firstname');
-      Session.set('lastname','lastname');
+      Session.set('firstname','Firstname');
+      Session.set('lastname','Lastname');
       Session.set('email','');
       Session.set('emailshort','');
     
@@ -35,12 +43,12 @@
   };
   
   Template.builtemail.builtemail = function(){
-      Session.set('email', Session.get('firstname').toLowerCase().replace("'",'').replace(" ",'')+'.'+Session.get('lastname').toLowerCase().replace("'",'').replace(" ",''));
+      Session.set('email', Session.get('firstname').toLowerCase().clean()+'.'+Session.get('lastname').toLowerCase().clean());
       return Session.get('email');
   };
 
   Template.builtemail.builtemailshort = function(){
-      Session.set('emailshort', Session.get('firstname').toLowerCase().replace("'",'').replace(" ",'').charAt(0)+'.'+Session.get('lastname').toLowerCase().replace("'",'').replace(" ",''));
+      Session.set('emailshort', Session.get('firstname').toLowerCase().clean().charAt(0)+'.'+Session.get('lastname').toLowerCase().clean());
       return Session.get('emailshort');
   };
 
@@ -79,9 +87,9 @@ Template.builtemail.domain = function(){
       if (Session.get('isemailavailable')=='taken'){
         var suffix = 2;
         while (true) {
-            suggestedalternative=Session.get('firstname').toLowerCase().replace("'",'').replace(" ",'')+'.'+Session.get('lastname').toLowerCase().replace("'",'').replace("",'')+suffix;
-            suggestedalternativeshort=Session.get('firstname').toLowerCase().replace("'",'').replace(" ",'').charAt(0)+'.'+Session.get('lastname').toLowerCase().replace("'",'').replace(" ",'')+suffix;
-            if (!reas.findOne({email:suggestedalternative+'@'+Sesson.get('domain')})){
+            suggestedalternative=Session.get('firstname').toLowerCase().clean()+'.'+Session.get('lastname').toLowerCase().clean()+suffix;
+            suggestedalternativeshort=Session.get('firstname').toLowerCase().clean().charAt(0)+'.'+Session.get('lastname').toLowerCase().clean()+suffix;
+            if (!reas.findOne({email:suggestedalternative+'@'+Session.get('domain')})){
                 break; // stop trying to increment the suffix to find a free email address
             }
             suffix++;
@@ -93,6 +101,16 @@ Template.builtemail.domain = function(){
       return Session.get('suggestedalternative');
   }
   
+  
+  Template.builtemail.emailmain = function() {
+      if (Session.get('isemailavailable')=='taken' && Session.get('email')!=Session.get('suggestedalternative')) {
+        Session.set('emailmain', Session.get('suggestedalternative'));
+      } else {
+        Session.set('emailmain', Session.get('email'));
+          
+      }
+      return Session.get('emailmain');
+  }
   
   
   Template.form.alloweddomains = function() {
@@ -113,7 +131,7 @@ Template.builtemail.domain = function(){
       //if (typeof console !== 'undefined')
         //console.log($(event.target).attr('id')+': '+$(event.target).val().trim());
 
-      Session.set($(event.target).attr('id'), $(event.target).val().trim());
+      Session.set($(event.target).attr('id'), $(event.target).val().trim().capitalize());
     },
 
     // domains  
@@ -129,14 +147,16 @@ Template.builtemail.domain = function(){
     // save
     'click button#save' : function(event) {
         
-        var email, emailshort;
+        var email, emailshort, emailmain;
         
         if (Session.get('isemailavailable')=='taken' && Session.get('email')!=Session.get('suggestedalternative')) {
-            email = Session.get('suggestedalternative');
-            emailshort = Session.get('suggestedalternativeshort');
+            email = Session.get('suggestedalternative')+'@'+Session.get('domain');
+            emailshort = Session.get('suggestedalternativeshort')+'@'+Session.get('domain');
+            emailmain = Session.get('suggestedalternative')+'@exertis.com';
         } else {
-            email = Session.get('email');
-            emailshort = Session.get('emailshort');
+            email = Session.get('email')+'@'+Session.get('domain');
+            emailshort = Session.get('emailshort')+'@'+Session.get('domain');
+            emailmain = Session.get('emailmain')+'@exertis.com';
         }
         
 

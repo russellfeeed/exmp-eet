@@ -1,36 +1,39 @@
 <head>
   <title>eet</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- <script src="https://togetherjs.com/togetherjs-min.js"></script> -->
 </head>
 
 <body>
+ {{loginButtons align="right"}}
+ 
     <div class="container-fluid">
     
     <div class="row-fluid">
-        <div class="offest1 span10">
+        <div class="offest1 span12">
             
             <div class="row-fluid">
               <div class="span8">{{> hello}}</div>
-              <div class="span4">
-                    {{loginButtons align="right"}}
-              </div>
+             
+                   
+            
             </div></div>
           
           
           {{#if currentUser}}
               <div class="row-fluid">
-                <div class="span4">
+                <div class="span3">
+                <!-- <button onclick="TogetherJS(this); return false;">Start TogetherJS</button> -->
                      {{> form}}
                      {{> loggedInInfo}}
                      {{> builtemail}}
                 </div>
-                <div class="span7">
+                <div class="span9">
                      {{> allemails}}
                 </div>
               </div>
               
-          {{else}}
-              <div class="alert alert-error span4">Please Sign In</div>
           {{/if}}
           
       </div>
@@ -75,9 +78,10 @@
 
 
 <template name="builtemail">
-    <div class="well"?>
+    <div class="well" id="builtemailpanel">
         <span id="builtemail">{{builtemail}}@{{domain}}</span><br>
         <span id="builtemail">{{builtemailshort}}@{{domain}}</span><br>
+        <span id="builtemail">{{emailmain}}@exertis.com</span><br>
         Suggested Alternative:<br>
         {{suggestedalternative}}@{{domain}}<br>
     </div>
@@ -109,6 +113,7 @@
                 <th class="sort" id="lastname">Lastname<i class="icon-chevron-down"></i></th>
                 <th class="sort" id="email">Email<i class="icon-chevron-down"></i></th>
                 <th class="sort" id="emailshort">Email Short<i class="icon-chevron-down"></i></th>
+                <th class="hidden-phone sort" id="emailmain">Email Main<i class="icon-chevron-down"></i></th>
                 <th class="sort" id="domain">Domain<i class="icon-chevron-down"></i></th>
             </tr>
         </thead>
@@ -133,6 +138,7 @@
         <td>{{lastname}}</td>
         <td>{{email}}</td>
         <td>{{emailshort}}</td>
+        <td>{{emailmain}}</td>
         <td>{{domain}}</td>
         <td> <input type="button" value="X" class="delete" /></td>
     </tr>

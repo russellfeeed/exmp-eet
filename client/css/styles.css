@@ -13,6 +13,27 @@
     width:120px;
 }
 
+
+#builtemailpanel {
+    font-size: 0.9em;
+}
+
+.scrolltable table {
+    font-size: 0.8em;
+}
+
+.scrolltable table th, .scrolltable table td {
+        line-height: 0.9em;
+}
+
+.scrolltable {
+    max-height: 400px;
+    width: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+
 th.sort i {
     margin-left:3px;
     display:none;
