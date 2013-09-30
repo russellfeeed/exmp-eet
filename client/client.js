@@ -17,6 +17,7 @@ String.prototype.clean = function() {
   function resetSessionVars() {        
       Session.set('firstname','Firstname');
       Session.set('lastname','Lastname');
+      Session.set('middleinitial','');
       Session.set('email','');
       Session.set('emailshort','');
     
@@ -31,7 +32,8 @@ String.prototype.clean = function() {
       Session.set('sortexpression',{sort: {lastname:0}});
       
       Session.set('groupdomain','exertis.com');
-      
+
+      $("#nameform input[value='']:not(:checkbox,:button):visible:first").focus();
   }
   
  
@@ -164,6 +166,8 @@ Template.builtemail.domain = function(){
       val = $(event.target).val().trim().capitalize().charAt(0);
       Session.set($(event.target).attr('id'), val.toLowerCase());
       $(event.target).val(val);
+      // focus next input automatically
+      $("#nameform input[value='']:not(:checkbox,:button):visible:first").focus();
       
     },
             
