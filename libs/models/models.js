@@ -1,4 +1,4 @@
-var reas = new Meteor.Collection("RegisteredEmailAddresses");
+reas = new Meteor.Collection("RegisteredEmailAddresses");
 
 /*checks to see if the current user making the request to update is
 the admin user */

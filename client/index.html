@@ -6,15 +6,16 @@
 </head>
 
 <body>
- {{loginButtons align="right"}}
+
  
     <div class="container-fluid">
-    
+   
     <div class="row-fluid">
         <div class="offest1 span12">
             
             <div class="row-fluid">
-              <div class="span8">{{> hello}}</div>
+  {{loginButtons align="right"}}
+             <div class="span8">{{> hello}}</div>
              
                    
             
@@ -70,6 +71,7 @@
             {{/each}}
         </select><br>
         <input type="text" id="firstname"  placeholder="First Name" class="nameinput"/>
+        <input type="text" id="middleinitial"  placeholder="Middle Initial" class="initialinput"/>        
         <input type="text" id="lastname"  placeholder="Last Name" class="nameinput"/>
         <p></p><button id="save" class="btn btn-primary" {{submitbuttondisabled}}>Save</button></p>
     </form>

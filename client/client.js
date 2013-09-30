@@ -3,7 +3,8 @@ String.prototype.capitalize = function() {
 }
 
 String.prototype.clean = function() {
-    return this.replace(/'/g,'').replace(/\s/g,'');
+    str = this.replace(/'/g,'').replace(/\s/g,'').replace(/_/g,'');
+    return str;
 }
 
    Meteor.subscribe("alltheemails");
@@ -29,9 +30,16 @@ String.prototype.clean = function() {
       
       Session.set('sortexpression',{sort: {lastname:0}});
       
+      Session.set('groupdomain','exertis.com');
       
   }
   
+ 
+ function nameWithMiddleInitial() {
+  return Session.get('firstname').toLowerCase().clean()+'.'+Session.get('middleinitial').toLowerCase()+'.'+Session.get('lastname').toLowerCase().clean();
+ } // nameWithMiddelInitial
+ 
+ 
  
     resetSessionVars();
   
@@ -55,7 +63,7 @@ String.prototype.clean = function() {
 
 Template.builtemail.domain = function(){
     return Session.get('domain');
-}
+};
 
   Template.emailchecks.isemailvalid = function(){
       var valid=true;
@@ -65,7 +73,7 @@ Template.builtemail.domain = function(){
         
       Session.set('isemailvalid', valid ? 'valid' : 'invalid');
       return Session.get('isemailvalid');
-  }
+  };
   
   
   Template.emailchecks.isemailavailable = function(){
@@ -77,7 +85,7 @@ Template.builtemail.domain = function(){
         
       Session.set('isemailavailable', available ? 'available' : 'taken');
       return Session.get('isemailavailable');
-  }
+  };
   
 
   Template.builtemail.suggestedalternative = function(){
@@ -85,21 +93,36 @@ Template.builtemail.domain = function(){
       var suggestedalternativeshort='no suggestion';
       
       if (Session.get('isemailavailable')=='taken'){
-        var suffix = 2;
-        while (true) {
-            suggestedalternative=Session.get('firstname').toLowerCase().clean()+'.'+Session.get('lastname').toLowerCase().clean()+suffix;
-            suggestedalternativeshort=Session.get('firstname').toLowerCase().clean().charAt(0)+'.'+Session.get('lastname').toLowerCase().clean()+suffix;
-            if (!reas.findOne({email:suggestedalternative+'@'+Session.get('domain')})){
-                break; // stop trying to increment the suffix to find a free email address
-            }
-            suffix++;
+          
+        // first try with middle initial added
+        suggestedalternative = nameWithMiddleInitial();
+        suggestedalternativeshort=Session.get('firstname').toLowerCase().clean().charAt(0)+'.'+Session.get('middleinitial')+'.'+Session.get('lastname').toLowerCase().clean();
+        if (reas.findOne({email:suggestedalternative+'@'+Session.get('domain')})){
+            // name with initial already taken.
+            // try adding numbers to the end
+            var suffix = 2;
+            while (true) {
+                suggestedalternativewithnum=suggestedalternative+suffix;
+                suggestedalternativeshortwithnum=Session.get('firstname').toLowerCase().clean().charAt(0)+'.'+Session.get('middleinitial')+'.'+Session.get('lastname').toLowerCase().clean()+suffix;
+                if (!reas.findOne({email:suggestedalternativewithnum+'@'+Session.get('groupdomain')})){
+                    break; // stop trying to increment the suffix to find a free email address
+                }
+                suffix++;
+            } // while
+            Session.set('suggestedalternative', suggestedalternativewithnum);
+            Session.set('suggestedalternativeshort', suggestedalternativeshortwithnum);
+        } else {
+            // We can use just the initial to make it unique
+            Session.set('suggestedalternative', suggestedalternative);
+            Session.set('suggestedalternativeshort', suggestedalternativeshort);
+            
         }
       }
         
       Session.set('suggestedalternative', suggestedalternative);
       Session.set('suggestedalternativeshort', suggestedalternativeshort);
       return Session.get('suggestedalternative');
-  }
+  };
   
   
   Template.builtemail.emailmain = function() {
@@ -130,9 +153,22 @@ Template.builtemail.domain = function(){
       // template data, if any, is available in 'this'
       //if (typeof console !== 'undefined')
         //console.log($(event.target).attr('id')+': '+$(event.target).val().trim());
-
-      Session.set($(event.target).attr('id'), $(event.target).val().trim().capitalize());
+      val = $(event.target).val().trim().capitalize();
+      Session.set($(event.target).attr('id'), val);
+      $(event.target).val(val);
     },
+            
+    'keyup input.initialinput' : function (event) {
+      // template data, if any, is available in 'this'
+      //if (typeof console !== 'undefined')
+        //console.log($(event.target).attr('id')+': '+$(event.target).val().trim());
+
+      val = $(event.target).val().trim().capitalize().charAt(0);
+      Session.set($(event.target).attr('id'), val.toLowerCase());
+      $(event.target).val(val);
+      
+    },
+            
 
     // domains  
     'change select#domain' : function (event) {
