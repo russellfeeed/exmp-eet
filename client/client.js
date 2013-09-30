@@ -88,7 +88,7 @@ Template.builtemail.domain = function(){
   };
   
 
-  Template.builtemail.suggestedalternative = function(){
+  Template.builtemail.suggestion = function(){
       var suggestedalternative='no suggestion';
       var suggestedalternativeshort='no suggestion';
       
@@ -97,18 +97,18 @@ Template.builtemail.domain = function(){
         // first try with middle initial added
         suggestedalternative = nameWithMiddleInitial();
         suggestedalternativeshort=Session.get('firstname').toLowerCase().clean().charAt(0)+'.'+Session.get('middleinitial')+'.'+Session.get('lastname').toLowerCase().clean();
-        if (reas.findOne({email:suggestedalternative+'@'+Session.get('domain')})){
+        if (reas.findOne({emailmain:suggestedalternative+'@'+Session.get('groupdomain')})){
             // name with initial already taken.
             // try adding numbers to the end
             var suffix = 2;
             while (true) {
                 suggestedalternativewithnum=suggestedalternative+suffix;
                 suggestedalternativeshortwithnum=Session.get('firstname').toLowerCase().clean().charAt(0)+'.'+Session.get('middleinitial')+'.'+Session.get('lastname').toLowerCase().clean()+suffix;
-                if (!reas.findOne({email:suggestedalternativewithnum+'@'+Session.get('groupdomain')})){
+                if (!reas.findOne({emailmain:suggestedalternativewithnum+'@'+Session.get('groupdomain')})){
                     break; // stop trying to increment the suffix to find a free email address
                 }
                 suffix++;
-            } // while
+            } // while                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          main
             Session.set('suggestedalternative', suggestedalternativewithnum);
             Session.set('suggestedalternativeshort', suggestedalternativeshortwithnum);
         } else {
@@ -119,8 +119,6 @@ Template.builtemail.domain = function(){
         }
       }
         
-      Session.set('suggestedalternative', suggestedalternative);
-      Session.set('suggestedalternativeshort', suggestedalternativeshort);
       return Session.get('suggestedalternative');
   };
   
