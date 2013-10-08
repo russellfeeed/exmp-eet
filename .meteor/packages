@@ -9,3 +9,9 @@ accounts-password
 accounts-ui
 email
 standard-app-packages
+
+cfs-public-folder
+
+meteor-file
+
+node-csv-npm

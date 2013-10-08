@@ -1,7 +1,38 @@
 {
   "meteor": {},
   "dependencies": {
-    "basePackages": {},
-    "packages": {}
+    "basePackages": {
+      "collectionFS": {},
+      "meteor-file": {},
+      "incr-csv": {},
+      "node-csv-npm": {}
+    },
+    "packages": {
+      "collectionFS": {
+        "git": "https://github.com/raix/Meteor-CollectionFS.git",
+        "tag": "v0.3.5",
+        "commit": "a6fbde6e2df3f081c51cad951305d1e0754d67de"
+      },
+      "meteor-file": {
+        "git": "https://github.com/EventedMind/meteor-file.git",
+        "tag": "v0.0.7",
+        "commit": "5d3edaaccfb9d0995cf848abfb61c3bd101ea507"
+      },
+      "incr-csv": {
+        "git": "https://github.com/jeffmitchel/meteor-incr-csv.git",
+        "tag": "v0.2.4",
+        "commit": "f9e6d649295fd471832d224f114f80a641114c2a"
+      },
+      "node-csv-npm": {
+        "git": "https://github.com/Dsyko/meteor-node-csv.git",
+        "tag": "v0.3.6",
+        "commit": "01be0e3e834a4f033121cb3fcc92c2697741170d"
+      },
+      "cfs-public-folder": {
+        "git": "https://github.com/nooitaf/meteor-cfs-public-folder.git",
+        "tag": "v0.0.2",
+        "commit": "7531bc924a9b9e5ecd568932c7048692330882fb"
+      }
+    }
   }
 }

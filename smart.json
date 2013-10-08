@@ -1,5 +1,8 @@
 {
   "packages": {
-    
+    "collectionFS": {},
+    "meteor-file": {},
+    "incr-csv": {},
+    "node-csv-npm": {}
   }
 }

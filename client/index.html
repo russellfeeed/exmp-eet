@@ -33,13 +33,20 @@
                 <div class="span9">
                      {{> allemails}}
                 </div>
+                <div class="row-fluid">
+                    <div class="offset1 span8 well">
+                        {{> fileUpload}}
+                    </div>
+                </div>
               </div>
               
           {{/if}}
           
       </div>
        </div>
-  </div>
+    
+    
+  
 </body>
 
 
@@ -153,4 +160,68 @@
         <div class="offset2 span1"><input name="lastnamefilter" class="filter" type="search" placeholder="Search lastname"/></div>
         <div class="offset2 span1"><input name="emailfilter" class="filter" type="email" placeholder="Search email"/></div>
     </tr>
+</template>
+
+
+<template name="queueControl">
+    <h3>Select file(s) to upload:</h3>
+    <input name="files" type="file" class="fileUploader" 
+           multiple>
+</template>
+
+<template name="fileTable">
+    {{#each files}}
+    {{cfsDownloadButton "ContactsFS" class="btn btn-primary btn-mini" content=filename}}
+    {{else}}
+    No files uploaded.
+    {{/each}}
+</template>
+
+
+
+
+<template name="fileUpload">
+  <form class="well">
+    <legend>
+      <h3>Upload Files</h3>
+    </legend>
+
+    {{#FileUploader method="uploadFile" size="1024*1024*5"}}
+      <input type="file" multiple class="fileuploader"/>
+
+      <table class="table">
+        <thead>
+          <th>Name</th>
+          <th>Size</th>
+          <th style="width: 150px;">Upload Progress</th>
+          <th style="width: 300px;">Status</th>
+        </thead>
+
+        <tbody>
+          {{#each files}}
+            {{> fileUploadRow}}
+          {{else}}
+            <tr><td colspan="4"><h5>No files selected</h5></td></tr>
+          {{/each}}
+        </tbody>
+      </table>
+    {{/FileUploader}}
+  </form>
+</template>
+
+<template name="fileUploadRow">
+  <tr>
+    <td>{{name}}</td>
+    <td>{{size}}</td>
+    <td>
+      <div class="progress progress-striped {{uploadCompleteClass}}">
+        <div class="bar" style="width: {{uploadProgress}}%">
+          <span style="padding: 2px; float: left; color: #000;">
+            {{uploadProgress}}%
+          </span>
+        </div>
+      </div>
+    </td>
+    <td>{{status}}</td>
+  </tr>
 </template>
