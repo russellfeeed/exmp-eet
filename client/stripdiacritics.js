@@ -20,7 +20,7 @@ String.prototype.removeDiacritics =  function() {
                                           }
 
     
-    var text = $.trim($(this).text());
+    var text = this;
    
     return text.replace(patternLetters, letterTranslator);
                           
