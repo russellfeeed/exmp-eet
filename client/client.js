@@ -9,15 +9,15 @@ String.prototype.clean = function() {
 
 Meteor.subscribe("alltheemails");
 
-var alloweddomains = [{domain: 'exertismicro-p.co.uk'},
-    {domain: 'exertisgem.co.uk'},
-    {domain: 'exertis.ie'}];
+var alloweddomains = [{domain: 'exertismicro-p.co.uk', company: 'Exertis Micro-P'},
+    {domain: 'exertisgem.co.uk', company: 'Exertis Gem'},
+    {domain: 'exertis.ie', company: 'Exertis Ireland'}];
 
 
 function resetSessionVars() {
     Session.set('firstname', 'Firstname');
     Session.set('lastname', 'Lastname');
-    Session.set('middleinitial', '');
+    Session.set('middlename', '');
     Session.set('email', '');
     Session.set('emailshort', '');
 
@@ -32,13 +32,19 @@ function resetSessionVars() {
     Session.set('sortexpression', {sort: {lastname: 0}});
 
     Session.set('groupdomain', 'exertis.com');
+    
+    Session.set('usermessage', false);
 
     $("#nameform input[value='']:not(:checkbox,:button):visible:first").focus();
 }
 
 
 function nameWithMiddleInitial() {
-    return Session.get('firstname').toLowerCase().clean() + '.' + Session.get('middleinitial').toLowerCase() + '.' + Session.get('lastname').toLowerCase().clean();
+    if ($('#nomiddlename:checked').length)
+        return Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('middlename').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics();
+    else 
+        return Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics();
+    
 } // nameWithMiddelInitial
 
 
@@ -53,12 +59,12 @@ Template.hello.greeting = function() {
 };
 
 Template.builtemail.builtemail = function() {
-    Session.set('email', Session.get('firstname').toLowerCase().clean() + '.' + Session.get('lastname').toLowerCase().clean());
+    Session.set('email', Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
     return Session.get('email');
 };
 
 Template.builtemail.builtemailshort = function() {
-    Session.set('emailshort', Session.get('firstname').toLowerCase().clean().charAt(0) + '.' + Session.get('lastname').toLowerCase().clean());
+    Session.set('emailshort', Session.get('firstname').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
     return Session.get('emailshort');
 };
 
@@ -67,27 +73,50 @@ Template.builtemail.domain = function() {
     return Session.get('domain');
 };
 
-Template.emailchecks.isemailvalid = function() {
-    var valid = true;
-    if (Session.get('firstname') == '' || Session.get('lastname') == '') {
-        valid = false;
-    }
+Template.emailchecks.helpers({
+    isemailvalid: function() {
+                        var valid = true;
+                        if (Session.get('firstname') == '' || Session.get('lastname') == '') {
+                            valid = false;
+                        }
 
-    Session.set('isemailvalid', valid ? 'valid' : 'invalid');
-    return Session.get('isemailvalid');
-};
+                        Session.set('isemailvalid', valid ? 'valid' : 'invalid');
+                        return Session.get('isemailvalid');
+                    },
+                            
+    isemailavailable: function() {
+                        var available = true;
+
+                        if (reas.findOne({email: Session.get('email') + "@" + Session.get('domain')})) {
+                            available = false;
+                        }
+
+                        Session.set('isemailavailable', available ? 'available' : 'taken');
+                        return Session.get('isemailavailable');
+                    },
+                            
+   emailusedby: function() {
+                        var emailusedby = false;
+
+                        emailusedby = reas.findOne({email: Session.get('email') + "@" + Session.get('domain')});
+                        
+                        if (emailusedby) {
+                            Session.set('emailusedby', emailusedby);
+                        } else {
+                            Session.set('emailusedby', false);
+                        }
+
+                        return Session.get('emailusedby');
+                    }                            
+});
 
 
-Template.emailchecks.isemailavailable = function() {
-    var available = true;
 
-    if (reas.findOne({email: Session.get('email') + "@" + Session.get('domain')})) {
-        available = false;
-    }
-
-    Session.set('isemailavailable', available ? 'available' : 'taken');
-    return Session.get('isemailavailable');
-};
+Template.usermsgalert.helpers({
+  usermessage: function () {
+    return Session.get("usermessage");
+  }
+});
 
 
 Template.builtemail.suggestion = function() {
@@ -98,14 +127,14 @@ Template.builtemail.suggestion = function() {
 
         // first try with middle initial added
         suggestedalternative = nameWithMiddleInitial();
-        suggestedalternativeshort = Session.get('firstname').toLowerCase().clean().charAt(0) + '.' + Session.get('middleinitial') + '.' + Session.get('lastname').toLowerCase().clean();
+        suggestedalternativeshort = Session.get('firstname').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('middlename') + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics();
         if (reas.findOne({emailmain: suggestedalternative + '@' + Session.get('groupdomain')})) {
             // name with initial already taken.
             // try adding numbers to the end
             var suffix = 2;
             while (true) {
                 suggestedalternativewithnum = suggestedalternative + suffix;
-                suggestedalternativeshortwithnum = Session.get('firstname').toLowerCase().clean().charAt(0) + '.' + Session.get('middleinitial') + '.' + Session.get('lastname').toLowerCase().clean() + suffix;
+                suggestedalternativeshortwithnum = Session.get('firstname').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('middlename').removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics() + suffix;
                 if (!reas.findOne({emailmain: suggestedalternativewithnum + '@' + Session.get('groupdomain')})) {
                     break; // stop trying to increment the suffix to find a free email address
                 }
@@ -132,7 +161,7 @@ Template.builtemail.emailmain = function() {
         Session.set('emailmain', Session.get('email'));
 
     }
-    return Session.get('emailmain');
+    return Session.get('emailmain').removeDiacritics();
 };
 
 
@@ -155,7 +184,7 @@ Template.form.events({
         Session.set($(event.target).attr('id'), val);
         $(event.target).val(val);
     },
-    'keyup input.initialinput': function(event) {
+    /*'keyup input.initialinput': function(event) {
         // template data, if any, is available in 'this'
         //if (typeof console !== 'undefined')
         //console.log($(event.target).attr('id')+': '+$(event.target).val().trim());
@@ -166,6 +195,16 @@ Template.form.events({
         // focus next input automatically
         $("#nameform input[value='']:not(:checkbox,:button):visible:first").focus();
 
+    },*/
+    'change #nomiddlename': function(event) {
+        var ele = $('input#middlename');
+        
+        if ($(event.target).attr('checked')) {
+            Session.set('usermessage',false);
+            ele.attr('disabled', 'disabled');
+        } else 
+            ele.removeAttr('disabled').val('');
+            
     },
     // domains  
     'change select#domain': function(event) {
@@ -179,6 +218,12 @@ Template.form.events({
     'click button#save': function(event) {
 
         var email, emailshort, emailmain;
+        
+        if (Session.get('middlename')=='' && !$('#nomiddlename:checked').length) {
+            // user must explicitly confirm they have no middle name
+            Session.set('usermessage', 'Middle name is required, or check the box');
+            return false;
+        }
 
         if (Session.get('isemailavailable') == 'taken' && Session.get('email') != Session.get('suggestedalternative')) {
             email = Session.get('suggestedalternative') + '@' + Session.get('domain');
@@ -193,6 +238,7 @@ Template.form.events({
 
         var newRecord = {
             'firstname': Session.get('firstname'),
+            'middlename': Session.get('middlename'),
             'lastname': Session.get('lastname'),
             'email': email,
             'emailshort': emailshort,

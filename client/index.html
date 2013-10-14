@@ -27,6 +27,7 @@
                 <div class="span3">
                 <!-- <button onclick="TogetherJS(this); return false;">Start TogetherJS</button> -->
                      {{> form}}
+                     {{> usermsgalert}}
                      {{> loggedInInfo}}
                      {{> builtemail}}
                 </div>
@@ -50,7 +51,14 @@
 </body>
 
 
-
+<template name="usermsgalert">
+    {{#if usermessage}}
+    <div class="alert">
+        {{usermessage}}
+    </div>
+    {{/if}}
+    
+</template>
 
 
 
@@ -74,11 +82,14 @@
     <form class="form-horizontal" id="nameform">
         <select name="domain" id="domain">
             {{#each alloweddomains}}
-                <option value="{{domain}}">{{domain}}</option>
+                <option value="{{domain}}">{{company}}: {{domain}}</option>
             {{/each}}
         </select><br>
         <input type="text" id="firstname"  placeholder="First Name" class="nameinput"/>
-        <input type="text" id="middleinitial"  placeholder="Middle Initial" class="initialinput"/>        
+        <input type="text" id="middlename"  placeholder="Middle Name" class="nameinput"/>  
+        <label class="checkbox">
+            <input type="checkbox" id="nomiddlename"> No middle name
+        </label>
         <input type="text" id="lastname"  placeholder="Last Name" class="nameinput"/>
         <p></p><button id="save" class="btn btn-primary" {{submitbuttondisabled}}>Save</button></p>
     </form>
@@ -89,10 +100,14 @@
 <template name="builtemail">
     <div class="well" id="builtemailpanel">
         <span id="builtemail">{{builtemail}}@{{domain}}</span><br>
-        <span id="builtemail">{{builtemailshort}}@{{domain}}</span><br>
+        <span id="builtemail">{{builtemailshort}}@{{domain}}</span>        
+        <br>
         <span id="builtemail">{{emailmain}}@exertis.com</span><br>
+        {{#if suggestion}}
         Suggested Alternative:<br>
-        {{suggestion}}@{{domain}}<br>
+        {{suggestion}}@{{domain}}
+        {{/if}}
+        
     </div>
     {{> emailchecks}}
 </template>
@@ -103,6 +118,10 @@
     <div class="well">
     Email <span class="{{isemailvalid}}">{{isemailvalid}}</span><br>
     Email <span class="{{isemailavailable}}">{{isemailavailable}}</span><br>
+    {{#if emailusedby}}
+    Email used by<br>
+    {{emailusedby.firstname}} {{emailusedby.middlename}} {{emailusedby.lastname}} 
+    {{/if}}
     
     </div>
 </template>
