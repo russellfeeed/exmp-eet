@@ -62,25 +62,6 @@ function resetSessionVars() {
 
 
 
-Deps.autorun(function () {
-    
-    if (!Session.get('nomiddlename')) {
-        if (Session.get('middlename').length)
-            Session.set('namewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('middlename').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
-        else
-            Session.set('namewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());        
-    } else 
-        Session.set('namewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
-
-    if (!Session.get('nomiddlename')) 
-        if (Session.get('middlename').length)
-            Session.set('shortnamewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' + Session.get('middlename').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
-        else
-            Session.set('shortnamewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
-    else 
-        Session.set('shortnamewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
-
-});
 
 
 
@@ -121,13 +102,6 @@ Template.emailchecks.helpers({
                     },
                             
     isemailavailable: function() {
-                        var available = true;
-
-                        if (reas.findOne({email: Session.get('email') + "@" + Session.get('domain')})) {
-                            available = false;
-                        }
-
-                        Session.set('isemailavailable', available ? 'available' : 'taken');
                         return Session.get('isemailavailable');
                     },
                             
@@ -156,48 +130,13 @@ Template.usermsgalert.helpers({
 
 
 Template.builtemail.suggestion = function() {
-    var suggestedalternative = 'no suggestion';
-    var suggestedalternativeshort = 'no suggestion';
-
-    if (Session.get('isemailavailable') == 'taken') {
-
-        // first try with middle initial added
-        suggestedalternative = Session.get('namewithmiddleinitial');
-        suggestedalternativeshort = Session.get('shortnamewithmiddleinitial');
-        if (reas.findOne({emailmain: suggestedalternative + '@' + Session.get('groupdomain')})) {
-            // name with initial already taken.
-            // try adding numbers to the end
-            var suffix = 2;
-            while (true) {
-                suggestedalternativewithnum = suggestedalternative + suffix;
-                suggestedalternativeshortwithnum = suggestedalternativeshort + suffix;
-                if (!reas.findOne({emailmain: suggestedalternativewithnum + '@' + Session.get('groupdomain')})) {
-                    break; // stop trying to increment the suffix to find a free email address
-                }
-                suffix++;
-            } // while                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          main
-            Session.set('suggestedalternative', suggestedalternativewithnum);
-            Session.set('suggestedalternativeshort', suggestedalternativeshortwithnum);
-        } else {
-            // We can use just the initial to make it unique
-            Session.set('suggestedalternative', suggestedalternative);
-            Session.set('suggestedalternativeshort', suggestedalternativeshort);
-
-        }
-    }
-
     return Session.get('suggestedalternative');
 };
 
 
 Template.builtemail.emailmain = function() {
-    if (Session.get('isemailavailable') == 'taken' && Session.get('email').removeDiacritics() != Session.get('suggestedalternative').removeDiacritics()) {
-        Session.set('emailmain', Session.get('suggestedalternative'));
-    } else {
-        Session.set('emailmain', Session.get('email'));
-
-    }
-    return Session.get('emailmain').removeDiacritics();
+    
+    return Session.get('emailmain');
 };
 
 
@@ -271,7 +210,7 @@ Template.form.events({
         } else {
             email = Session.get('email') + '@' + Session.get('domain');
             emailshort = Session.get('emailshort') + '@' + Session.get('domain');
-            emailmain = Session.get('emailmain') + '@exertis.com';
+            emailmain = Session.get('email') + '@' + Session.get('groupdomain');
         }
 
 
@@ -433,5 +372,85 @@ Accounts.ui.config({
   Meteor.startup(function () {
     // code to run on client at startup
      initSessionVars();
+
+      
+      Deps.autorun(function () {
     
-  });
+    if (!Session.get('nomiddlename')) {
+        if (Session.get('middlename').length)
+            Session.set('namewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('middlename').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
+        else
+            Session.set('namewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());        
+    } else {
+        if (Session.get('middlename').length)
+            Session.set('namewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('middlename').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
+        else
+            Session.set('namewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
+    }
+      });
+      
+    Deps.autorun(function () {
+        if (!Session.get('nomiddlename')) 
+            if (Session.get('middlename').length)
+                Session.set('shortnamewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' + Session.get('middlename').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
+            else
+                Session.set('shortnamewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
+        else {
+            if (Session.get('middlename').length)
+                Session.set('shortnamewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' + Session.get('middlename').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
+            else
+                Session.set('shortnamewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
+            
+    }
+    
+      });
+      
+     Deps.autorun(function () {
+
+        var available = true;
+
+        if (reas.findOne({emailmain: Session.get('email') + "@" + Session.get('groupdomain')})) {
+            available = false;
+        }
+
+        Session.set('isemailavailable', available ? 'available' : 'taken');
+     });
+     
+     
+     Deps.autorun(function () {
+        var suggestedalternative = 'no suggestion';
+        var suggestedalternativeshort = 'no suggestion';
+
+        if (Session.get('isemailavailable') == 'taken') {
+
+            // first try with middle initial added
+            suggestedalternative = Session.get('namewithmiddleinitial');
+            suggestedalternativeshort = Session.get('shortnamewithmiddleinitial');
+
+             if (reas.findOne({emailmain: suggestedalternative + '@' + Session.get('groupdomain')})) {
+                // name with initial already taken.
+                // try adding numbers to the end
+                var suffix = 2;
+                while (true) {
+                    suggestedalternativewithnum = suggestedalternative + suffix;
+                    suggestedalternativeshortwithnum = suggestedalternativeshort + suffix;
+                    if (!reas.findOne({emailmain: suggestedalternativewithnum + '@' + Session.get('groupdomain')})) {
+                        break; // stop trying to increment the suffix to find a free email address
+                    }
+                    suffix++;
+                } // while                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          main
+                Session.set('suggestedalternative', suggestedalternativewithnum);
+                Session.set('suggestedalternativeshort', suggestedalternativeshortwithnum);
+            } else {
+                // We can use just the initial to make it unique
+                Session.set('suggestedalternative', suggestedalternative);
+                Session.set('suggestedalternativeshort', suggestedalternativeshort);
+
+            }
+        }
+
+     });
+
+});
+
+
