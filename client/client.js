@@ -14,7 +14,7 @@ var alloweddomains = [{domain: 'exertismicro-p.co.uk', company: 'Exertis Micro-P
     {domain: 'exertis.ie', company: 'Exertis Ireland'}];
 
 
-function resetSessionVars() {
+function initSessionVars() {
     Session.set('firstname', 'Firstname');
     Session.set('lastname', 'Lastname');
     Session.set('middlename', '');
@@ -36,20 +36,56 @@ function resetSessionVars() {
     Session.set('usermessage', false);
 
     $("#nameform input[value='']:not(:checkbox,:button):visible:first").focus();
+    $('#nomiddlename').removeAttr('checked');
 }
 
 
-function nameWithMiddleInitial() {
-    if ($('#nomiddlename:checked').length)
-        return Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('middlename').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics();
-    else 
-        return Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics();
+
+function resetSessionVars() {
+    Session.set('firstname', 'Firstname');
+    Session.set('lastname', 'Lastname');
+    Session.set('middlename', '');
+    Session.set('email', '');
+    Session.set('emailshort', '');
+
+    Session.set('isemailvalid', '');
+    Session.set('isemailavailable', '');
+
+    Session.set('suggestedalternative', '');
+    Session.set('suggestedalternativeshort', '');
+
+    Session.set('usermessage', false);
+
+    $("#nameform input[value='']:not(:checkbox,:button):visible:first").focus();
+    $('#nomiddlename').removeAttr('checked');
+}
+
+
+
+Deps.autorun(function () {
     
-} // nameWithMiddelInitial
+    if (!Session.get('nomiddlename')) {
+        if (Session.get('middlename').length)
+            Session.set('namewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('middlename').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
+        else
+            Session.set('namewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());        
+    } else 
+        Session.set('namewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
+
+    if (!Session.get('nomiddlename')) 
+        if (Session.get('middlename').length)
+            Session.set('shortnamewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' + Session.get('middlename').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
+        else
+            Session.set('shortnamewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
+    else 
+        Session.set('shortnamewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
+
+});
 
 
 
-resetSessionVars();
+
+
 
 
 
@@ -126,15 +162,15 @@ Template.builtemail.suggestion = function() {
     if (Session.get('isemailavailable') == 'taken') {
 
         // first try with middle initial added
-        suggestedalternative = nameWithMiddleInitial();
-        suggestedalternativeshort = Session.get('firstname').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('middlename') + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics();
+        suggestedalternative = Session.get('namewithmiddleinitial');
+        suggestedalternativeshort = Session.get('shortnamewithmiddleinitial');
         if (reas.findOne({emailmain: suggestedalternative + '@' + Session.get('groupdomain')})) {
             // name with initial already taken.
             // try adding numbers to the end
             var suffix = 2;
             while (true) {
                 suggestedalternativewithnum = suggestedalternative + suffix;
-                suggestedalternativeshortwithnum = Session.get('firstname').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('middlename').removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics() + suffix;
+                suggestedalternativeshortwithnum = suggestedalternativeshort + suffix;
                 if (!reas.findOne({emailmain: suggestedalternativewithnum + '@' + Session.get('groupdomain')})) {
                     break; // stop trying to increment the suffix to find a free email address
                 }
@@ -155,7 +191,7 @@ Template.builtemail.suggestion = function() {
 
 
 Template.builtemail.emailmain = function() {
-    if (Session.get('isemailavailable') == 'taken' && Session.get('email') != Session.get('suggestedalternative')) {
+    if (Session.get('isemailavailable') == 'taken' && Session.get('email').removeDiacritics() != Session.get('suggestedalternative').removeDiacritics()) {
         Session.set('emailmain', Session.get('suggestedalternative'));
     } else {
         Session.set('emailmain', Session.get('email'));
@@ -202,8 +238,11 @@ Template.form.events({
         if ($(event.target).attr('checked')) {
             Session.set('usermessage',false);
             ele.attr('disabled', 'disabled');
-        } else 
+            Session.set('nomiddlename',true);
+        } else { 
             ele.removeAttr('disabled').val('');
+            Session.set('nomiddlename',false);
+        }
             
     },
     // domains  
@@ -381,11 +420,18 @@ Accounts.ui.config({
   Template.fileUploadRow.helpers({
     uploadCompleteClass: function () {
       return this.uploadProgress == 100 ? 'progress-success' : '';
-    },
-    
-
+    }
   });
   
+  Template.fileUpload.rendered = function() {
+   //$('#fumodal').modal();
+};
+  
   
 
 
+  Meteor.startup(function () {
+    // code to run on client at startup
+     initSessionVars();
+    
+  });
