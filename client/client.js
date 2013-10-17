@@ -23,6 +23,7 @@ function initSessionVars() {
 
     Session.set('isemailvalid', '');
     Session.set('isemailavailable', '');
+    Session.set('isemailshortavailable', '');
 
     Session.set('suggestedalternative', '');
     Session.set('suggestedalternativeshort', '');
@@ -32,7 +33,7 @@ function initSessionVars() {
     Session.set('sortexpression', {sort: {lastname: 0}});
 
     Session.set('groupdomain', 'exertis.com');
-    
+
     Session.set('usermessage', false);
 
     $("#nameform input[value='']:not(:checkbox,:button):visible:first").focus();
@@ -50,6 +51,7 @@ function resetSessionVars() {
 
     Session.set('isemailvalid', '');
     Session.set('isemailavailable', '');
+    Session.set('isemailshortavailable', '');
 
     Session.set('suggestedalternative', '');
     Session.set('suggestedalternativeshort', '');
@@ -75,15 +77,15 @@ Template.hello.greeting = function() {
     return "Welcome to EEAT - the Exertis Email Address Tool.";
 };
 
-Template.builtemail.builtemail = function() {
-    Session.set('email', Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
-    return Session.get('email');
-};
 
-Template.builtemail.builtemailshort = function() {
-    Session.set('emailshort', Session.get('firstname').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
-    return Session.get('emailshort');
-};
+// make all Session variables available in any Template, e.g.
+// {{session "emailshort"}}
+Handlebars.registerHelper('session',function(input){
+    return Session.get(input);
+});
+
+
+
 
 
 Template.builtemail.domain = function() {
@@ -100,16 +102,20 @@ Template.emailchecks.helpers({
                         Session.set('isemailvalid', valid ? 'valid' : 'invalid');
                         return Session.get('isemailvalid');
                     },
-                            
+
     isemailavailable: function() {
                         return Session.get('isemailavailable');
                     },
-                            
+
+    isemailshortavailable: function() {
+                        return Session.get('isemailshortavailable');
+                    },
+
    emailusedby: function() {
                         var emailusedby = false;
 
-                        emailusedby = reas.findOne({email: Session.get('email') + "@" + Session.get('domain')});
-                        
+                        emailusedby = reas.findOne({emaillocalpart: Session.get('namewithoutmiddleinitial') });
+
                         if (emailusedby) {
                             Session.set('emailusedby', emailusedby);
                         } else {
@@ -117,7 +123,7 @@ Template.emailchecks.helpers({
                         }
 
                         return Session.get('emailusedby');
-                    }                            
+                    }
 });
 
 
@@ -134,10 +140,6 @@ Template.builtemail.suggestion = function() {
 };
 
 
-Template.builtemail.emailmain = function() {
-    
-    return Session.get('emailmain');
-};
 
 
 Template.form.alloweddomains = function() {
@@ -150,14 +152,18 @@ Template.form.submitbuttondisabled = function() {
 };
 
 Template.form.events({
-    // inputs  
+    // inputs
     'keyup input.nameinput': function(event) {
         // template data, if any, is available in 'this'
         //if (typeof console !== 'undefined')
         //console.log($(event.target).attr('id')+': '+$(event.target).val().trim());
-        val = $(event.target).val().trim().capitalize();
+        val = $(event.target).val().capitalize();
         Session.set($(event.target).attr('id'), val);
         $(event.target).val(val);
+
+        if ($('#middlename').val().length) {
+            $('#nomiddlename').removeAttr('checked');
+        }
     },
     /*'keyup input.initialinput': function(event) {
         // template data, if any, is available in 'this'
@@ -173,18 +179,18 @@ Template.form.events({
     },*/
     'change #nomiddlename': function(event) {
         var ele = $('input#middlename');
-        
+
         if ($(event.target).attr('checked')) {
             Session.set('usermessage',false);
             ele.attr('disabled', 'disabled');
             Session.set('nomiddlename',true);
-        } else { 
+        } else {
             ele.removeAttr('disabled').val('');
             Session.set('nomiddlename',false);
         }
-            
+
     },
-    // domains  
+    // domains
     'change select#domain': function(event) {
         // template data, if any, is available in 'this'
         //if (typeof console !== 'undefined')
@@ -196,31 +202,24 @@ Template.form.events({
     'click button#save': function(event) {
 
         var email, emailshort, emailmain;
-        
+
         if (Session.get('middlename')=='' && !$('#nomiddlename:checked').length) {
             // user must explicitly confirm they have no middle name
             Session.set('usermessage', 'Middle name is required, or check the box');
             return false;
         }
 
-        if (Session.get('isemailavailable') == 'taken' && Session.get('email') != Session.get('suggestedalternative')) {
-            email = Session.get('suggestedalternative') + '@' + Session.get('domain');
-            emailshort = Session.get('suggestedalternativeshort') + '@' + Session.get('domain');
-            emailmain = Session.get('suggestedalternative') + '@exertis.com';
-        } else {
-            email = Session.get('email') + '@' + Session.get('domain');
-            emailshort = Session.get('emailshort') + '@' + Session.get('domain');
-            emailmain = Session.get('email') + '@' + Session.get('groupdomain');
-        }
 
 
         var newRecord = {
             'firstname': Session.get('firstname'),
             'middlename': Session.get('middlename'),
             'lastname': Session.get('lastname'),
-            'email': email,
-            'emailshort': emailshort,
-            'emailmain': emailmain,
+            'emaillocalpart' : Session.get('emaillocalpart'),
+            'emaillocalpartshort' : Session.get('emaillocalpartshort'),
+            //'email': email,
+            //'emailshort': emailshort,
+            //'emailmain': emailmain,
             'domain': Session.get('domain')
         };
 
@@ -242,7 +241,7 @@ Template.form.events({
 Template.allemailstbody.events({
     'click input.delete': function(event) {
         event.preventDefault();
-        if (confirm("Delete " + this.email + ". Are you sure?")) {
+        if (confirm("Delete " + this.emaillocalpart + ". Are you sure?")) {
             reas.remove(this._id);
         }
     }
@@ -327,7 +326,7 @@ Accounts.ui.config({
 
 
   Files = new Meteor.Collection(null);
-  
+
 
   Template.fileUpload.events({
     'change input[type=file]': function (e, tmpl) {
@@ -361,36 +360,45 @@ Accounts.ui.config({
       return this.uploadProgress == 100 ? 'progress-success' : '';
     }
   });
-  
+
   Template.fileUpload.rendered = function() {
    //$('#fumodal').modal();
 };
-  
-  
+
+
 
 
   Meteor.startup(function () {
     // code to run on client at startup
      initSessionVars();
 
-      
+
       Deps.autorun(function () {
-    
-    if (!Session.get('nomiddlename')) {
-        if (Session.get('middlename').length)
-            Session.set('namewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('middlename').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
-        else
-            Session.set('namewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());        
-    } else {
-        if (Session.get('middlename').length)
-            Session.set('namewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('middlename').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
-        else
-            Session.set('namewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
-    }
-      });
-      
+        // calculate proposed name (left hand side of email)
+        // regardless of whether it is available or not
+        if (!Session.get('nomiddlename')) {
+            if (Session.get('middlename').length)
+                Session.set('namewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('middlename').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
+            else
+                Session.set('namewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
+        } else {
+            if (Session.get('middlename').length)
+                Session.set('namewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('middlename').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
+            else
+                Session.set('namewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
+        }
+
+        Session.set('namewithoutmiddleinitial',
+            Session.get('firstname').toLowerCase().clean().removeDiacritics() + '.' +
+            Session.get('lastname').toLowerCase().clean().removeDiacritics());
+
+
+     });
+
     Deps.autorun(function () {
-        if (!Session.get('nomiddlename')) 
+        // calculate proposed Short name (left hand side using initial for firstname)
+        // regardless of whether it is available or not
+        if (!Session.get('nomiddlename'))
             if (Session.get('middlename').length)
                 Session.set('shortnamewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' + Session.get('middlename').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
             else
@@ -400,45 +408,64 @@ Accounts.ui.config({
                 Session.set('shortnamewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' + Session.get('middlename').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
             else
                 Session.set('shortnamewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
-            
+
+        Session.set('shortnamewithoutmiddleinitial',
+            Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' +
+            Session.get('lastname').toLowerCase().clean().removeDiacritics());
+
     }
-    
+
       });
-      
+
      Deps.autorun(function () {
 
+        // Check if main email is available or not
         var available = true;
+        var shortavailable = true;
 
-        if (reas.findOne({emailmain: Session.get('email') + "@" + Session.get('groupdomain')})) {
+        if (reas.findOne({emaillocalpart: Session.get('emaillocalpart')})) {
             available = false;
         }
-
         Session.set('isemailavailable', available ? 'available' : 'taken');
+
+        if (reas.findOne({emaillocalpartshort: Session.get('emaillocalpartshort')})) {
+            shortavailable = false;
+        }
+        Session.set('isemailshortavailable', shortavailable ? 'available' : 'taken');
      });
-     
-     
+
+
      Deps.autorun(function () {
+
+        // if email is already taken, suggest an alternative
+
         var suggestedalternative = 'no suggestion';
         var suggestedalternativeshort = 'no suggestion';
 
-        if (Session.get('isemailavailable') == 'taken') {
+        var namewithoutmiddelinitial = Session.get('namewithoutmiddleinitial');
+        var shortnamewithoutmiddelinitial = Session.get('shortnamewithoutmiddleinitial');
+
+        var foundname = reas.findOne({emaillocalpart: namewithoutmiddelinitial});
+        var foundnameshort = reas.findOne({emaillocalpartshort: shortnamewithoutmiddelinitial});
+
+        if (foundname || foundnameshort) {
 
             // first try with middle initial added
             suggestedalternative = Session.get('namewithmiddleinitial');
             suggestedalternativeshort = Session.get('shortnamewithmiddleinitial');
 
-             if (reas.findOne({emailmain: suggestedalternative + '@' + Session.get('groupdomain')})) {
-                // name with initial already taken.
+             if (reas.findOne({emaillocalpart: suggestedalternative}) || reas.findOne({emaillocalpartshort: suggestedalternativeshort})) {
+                // already taken.
                 // try adding numbers to the end
                 var suffix = 2;
                 while (true) {
                     suggestedalternativewithnum = suggestedalternative + suffix;
                     suggestedalternativeshortwithnum = suggestedalternativeshort + suffix;
-                    if (!reas.findOne({emailmain: suggestedalternativewithnum + '@' + Session.get('groupdomain')})) {
+                    if (!reas.findOne({emaillocalpart: suggestedalternativewithnum}) && !reas.findOne({emaillocalpartshort: suggestedalternativeshortwithnum})) {
                         break; // stop trying to increment the suffix to find a free email address
                     }
                     suffix++;
-                } // while                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          main
+                } // while                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       main
                 Session.set('suggestedalternative', suggestedalternativewithnum);
                 Session.set('suggestedalternativeshort', suggestedalternativeshortwithnum);
             } else {
@@ -447,7 +474,13 @@ Accounts.ui.config({
                 Session.set('suggestedalternativeshort', suggestedalternativeshort);
 
             }
+            Session.set('emaillocalpart', Session.get('suggestedalternative'));
+            Session.set('emaillocalpartshort', Session.get('suggestedalternativeshort'));
+        } else {
+            Session.set('emaillocalpart', Session.get('namewithmiddleinitial'));
+            Session.set('emaillocalpartshort', Session.get('shortnamewithmiddleinitial'));
         }
+
 
      });
 
