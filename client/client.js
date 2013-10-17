@@ -15,18 +15,7 @@ var alloweddomains = [{domain: 'exertismicro-p.co.uk', company: 'Exertis Micro-P
 
 
 function initSessionVars() {
-    Session.set('firstname', 'Firstname');
-    Session.set('lastname', 'Lastname');
-    Session.set('middlename', '');
-    Session.set('email', '');
-    Session.set('emailshort', '');
-
-    Session.set('isemailvalid', '');
-    Session.set('isemailavailable', '');
-    Session.set('isemailshortavailable', '');
-
-    Session.set('suggestedalternative', '');
-    Session.set('suggestedalternativeshort', '');
+    resetSessionVars();
 
     Session.set('domain', alloweddomains[0].domain);
 
@@ -34,10 +23,6 @@ function initSessionVars() {
 
     Session.set('groupdomain', 'exertis.com');
 
-    Session.set('usermessage', false);
-
-    $("#nameform input[value='']:not(:checkbox,:button):visible:first").focus();
-    $('#nomiddlename').removeAttr('checked');
 }
 
 
@@ -46,8 +31,6 @@ function resetSessionVars() {
     Session.set('firstname', 'Firstname');
     Session.set('lastname', 'Lastname');
     Session.set('middlename', '');
-    Session.set('email', '');
-    Session.set('emailshort', '');
 
     Session.set('isemailvalid', '');
     Session.set('isemailavailable', '');
@@ -55,6 +38,9 @@ function resetSessionVars() {
 
     Session.set('suggestedalternative', '');
     Session.set('suggestedalternativeshort', '');
+
+    Session.set('namewithoutmiddleinitial', '');
+    Session.set('shortnamewithoutmiddleinitial', '');
 
     Session.set('usermessage', false);
 
