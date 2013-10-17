@@ -18,9 +18,7 @@ function initSessionVars() {
     resetSessionVars();
 
     Session.set('domain', alloweddomains[0].domain);
-
     Session.set('sortexpression', {sort: {lastname: 0}});
-
     Session.set('groupdomain', 'exertis.com');
 
 }
@@ -184,10 +182,13 @@ Template.form.events({
 
         Session.set($(event.target).attr('id'), $(event.target).val().trim());
     },
-    // save
-    'click button#save': function(event) {
 
-        var email, emailshort, emailmain;
+    'change #emailtable input:checkbox': function(event) {
+        alert($(event.target).val());
+    },
+
+    // save
+    'change button#save': function(event) {
 
         if (Session.get('middlename')=='' && !$('#nomiddlename:checked').length) {
             // user must explicitly confirm they have no middle name
@@ -206,7 +207,8 @@ Template.form.events({
             //'email': email,
             //'emailshort': emailshort,
             //'emailmain': emailmain,
-            'domain': Session.get('domain')
+            'domain': Session.get('domain'),
+            'disabled': ''
         };
 
         reas.insert(newRecord);
