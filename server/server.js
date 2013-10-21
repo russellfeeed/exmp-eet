@@ -16,7 +16,7 @@
     console.log(file.size);
   }
 
-  file.save('/home/russell/tmp',{});
+  file.save('../../../../../public/uploads',{});
   var buffer = new Buffer(file.data);
 
   var fut = new Future();
