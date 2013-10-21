@@ -251,8 +251,8 @@ Template.allemailstbody.alltheemails = function() {
         filter.push({lastname: {$regex: Session.get('lastnamefilter'), $options: "i"}});
     }
 
-    if (Session.get('emailfilter')) {
-        filter.push({email: {$regex: Session.get('emailfilter'), $options: "i"}});
+    if (Session.get('domainfilter')) {
+        filter.push({domain: {$regex: Session.get('domainfilter'), $options: "i"}});
     }
 
 
