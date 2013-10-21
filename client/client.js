@@ -1,11 +1,3 @@
-String.prototype.capitalize = function() {
-    return this.charAt(0).toUpperCase() + this.slice(1);
-};
-
-String.prototype.clean = function() {
-    str = this.replace(/'/g, '').replace(/\s/g, '').replace(/_/g, '');
-    return str;
-};
 
 Meteor.subscribe("alltheemails");
 
@@ -138,9 +130,6 @@ Template.form.submitbuttondisabled = function() {
 Template.form.events({
     // inputs
     'keyup input.nameinput': function(event) {
-        // template data, if any, is available in 'this'
-        //if (typeof console !== 'undefined')
-        //console.log($(event.target).attr('id')+': '+$(event.target).val().trim());
         val = $(event.target).val().capitalize();
         Session.set($(event.target).attr('id'), val);
         $(event.target).val(val);
@@ -149,6 +138,17 @@ Template.form.events({
             $('#nomiddlename').removeAttr('checked');
         }
     },
+
+   'blur input.nameinput': function(event) {
+        val = $(event.target).val().trim();
+        Session.set($(event.target).attr('id'), val);
+        $(event.target).val(val);
+
+        if ($('#middlename').val().length) {
+            $('#nomiddlename').removeAttr('checked');
+        }
+    },
+
     /*'keyup input.initialinput': function(event) {
         // template data, if any, is available in 'this'
         //if (typeof console !== 'undefined')
@@ -183,12 +183,12 @@ Template.form.events({
         Session.set($(event.target).attr('id'), $(event.target).val().trim());
     },
 
-    'change #emailtable input:checkbox': function(event) {
+    /*'change #emailtable input:checkbox': function(event) {
         alert($(event.target).val());
-    },
+    },*/
 
     // save
-    'change button#save': function(event) {
+    'click button#save': function(event) {
 
         if (Session.get('middlename')=='' && !$('#nomiddlename:checked').length) {
             // user must explicitly confirm they have no middle name
@@ -388,14 +388,24 @@ Accounts.ui.config({
         // regardless of whether it is available or not
         if (!Session.get('nomiddlename'))
             if (Session.get('middlename').length)
-                Session.set('shortnamewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' + Session.get('middlename').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
+                Session.set('shortnamewithmiddleinitial',
+                    Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' +
+                    Session.get('middlename').toLowerCase().clean().charAt(0).removeDiacritics() + '.' +
+                    Session.get('lastname').toLowerCase().clean().removeDiacritics());
             else
-                Session.set('shortnamewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
+                Session.set('shortnamewithmiddleinitial',
+                    Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' +
+                    Session.get('lastname').toLowerCase().clean().removeDiacritics());
         else {
             if (Session.get('middlename').length)
-                Session.set('shortnamewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' + Session.get('middlename').toLowerCase().clean().charAt(0).removeDiacritics() + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
+                Session.set('shortnamewithmiddleinitial',
+                    Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' +
+                    Session.get('middlename').toLowerCase().clean().charAt(0).removeDiacritics() + '.' +
+                    Session.get('lastname').toLowerCase().clean().removeDiacritics());
             else
-                Session.set('shortnamewithmiddleinitial', Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' + Session.get('lastname').toLowerCase().clean().removeDiacritics());
+                Session.set('shortnamewithmiddleinitial',
+                    Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' +
+                    Session.get('lastname').toLowerCase().clean().removeDiacritics());
 
         Session.set('shortnamewithoutmiddleinitial',
             Session.get('firstname').toLowerCase().clean().removeDiacritics().charAt(0) + '.' +
@@ -465,8 +475,8 @@ Accounts.ui.config({
             Session.set('emaillocalpart', Session.get('suggestedalternative'));
             Session.set('emaillocalpartshort', Session.get('suggestedalternativeshort'));
         } else {
-            Session.set('emaillocalpart', Session.get('namewithmiddleinitial'));
-            Session.set('emaillocalpartshort', Session.get('shortnamewithmiddleinitial'));
+            Session.set('emaillocalpart', Session.get('namewithoutmiddleinitial'));
+            Session.set('emaillocalpartshort', Session.get('shortnamewithoutmiddleinitial'));
         }
 
 
