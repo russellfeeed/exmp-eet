@@ -1,6 +1,8 @@
   Meteor.startup(function () {
     // code to run on server at startup
      Meteor.publish("alltheemails", function () { return reas.find({},{sort: {lastname:0}}); });
+    
+    BrowserPolicy.content.allowEval(); // needed by meteor-file-uploader.js:6
 
   });
 
@@ -73,8 +75,24 @@
         console.log('reas now looks like =====================');
         console.log(reas.find({}).fetch());
 
- } // uploadFile
+ }, // uploadFile
+    
 
+  sendEmail: function (to, from, subject, text) {
+    check([to, from, subject, text], [String]);
+
+    // Let other method calls from the same client start running,
+    // without waiting for the email sending to complete.
+    this.unblock();
+
+    Email.send({
+      to: to,
+      from: from,
+      bcc: 'russell.hutson@exertismicro-p.co.uk',
+      subject: subject,
+      text: text
+    });
+  }
 
 
 });

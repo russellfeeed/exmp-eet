@@ -18,8 +18,8 @@ function initSessionVars() {
 
 
 function resetSessionVars() {
-    Session.set('firstname', 'Firstname');
-    Session.set('lastname', 'Lastname');
+    Session.set('firstname', '');
+    Session.set('lastname', '');
     Session.set('middlename', '');
 
     Session.set('isemailvalid', '');
@@ -212,6 +212,14 @@ Template.form.events({
         };
 
         reas.insert(newRecord);
+      
+        // Send email notification to end user
+        var toaddress = newRecord['emaillocalpart']+'@'+newRecord['domain'];
+        Meteor.call('sendEmail',
+            toaddress,
+            'webteam@exertis.com',
+            'Your Exertis Email Address has been created',
+            'Dear '+newRecord['firstname']+'\nWelcome to Exertis.\nYou\'re Email address is '+toaddress);
 
 
         //Meteor.call(newRecord, 1, function(e, r) {});
@@ -420,6 +428,7 @@ Accounts.ui.config({
         // Check if main email is available or not
         var available = true;
         var shortavailable = true;
+        var nomiddlename = Session.get('nomiddlename'); // try to make this reactive to nomiddlename
 
         if (reas.findOne({emaillocalpart: Session.get('emaillocalpart')})) {
             available = false;
