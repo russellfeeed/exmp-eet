@@ -229,7 +229,11 @@ Template.form.events({
         $('input.nameinput:first').focus();
         return false;
 
-    }
+    },
+  
+      'click button#backup': function(event) {
+        Meteor.call('backup');
+      }
 
 });
 
@@ -367,6 +371,13 @@ Accounts.ui.config({
   Meteor.startup(function () {
     // code to run on client at startup
      initSessionVars();
+    
+     Meteor.call('sendEmail',
+            'russell.hutson@exertismicro-p.co.uk',
+            'russellh.microp@gmail.com',
+            'EEAT has been visited',
+            '++++');
+
 
 
       Deps.autorun(function () {

@@ -3,6 +3,34 @@
      Meteor.publish("alltheemails", function () { return reas.find({},{sort: {lastname:0}}); });
     
     BrowserPolicy.content.allowEval(); // needed by meteor-file-uploader.js:6
+    
+    process.env.MAIL_URL='smtp://'+'russellh.microp%40gmail.com'+':'+
+                'ggmailSL58JY'+'@smtp.gmail.com:587/';
+    
+
+    //RESTstop.configure({use_auth: true});
+    
+    RESTstop.add('get_emails/:qry?', {require_login: true}, function() {var query
+      //if(!this.params.q || typeof this.params.q !== 'object') 
+      var query;
+                                                                        
+      if(!this.params.qry) 
+        return [403, {success: false, message: 'You need a qry as a parameter!'}];
+      else
+        query= JSON.parse(this.params.qry);
+      
+      eemails = [];
+      
+      console.log("query="+query);
+      
+        reas.find(query).forEach(function(ele) {
+        console.log('pushing '+ele);
+        eemails.push(ele);
+      });
+      
+      console.log('emails='+eemails);
+      return {'emails':eemails};
+      });
 
   });
 
@@ -85,14 +113,12 @@
     // without waiting for the email sending to complete.
     this.unblock();
 
-    Email.send({
-      to: to,
-      from: from,
-      bcc: 'russell.hutson@exertismicro-p.co.uk',
-      subject: subject,
-      text: text
-    });
-  }
+    sendByEmail(to, from, subject, text);
+  }, // sendEmail
+    
+    backup: function () {
+      backupMongoDB();
+    } // backup
 
 
 });
@@ -185,3 +211,60 @@ function getEmailLocalParts(emailrecord) {
     return emailrecord;
 
 } // getEmailLocalParts
+
+
+function backupMongoDB() {
+  var sys = Npm.require('sys')
+  var fs = Npm.require('fs');
+  var exec = Npm.require('child_process').exec;
+  function puts(error, stdout, stderr) { sys.puts(stdout) }
+  
+  
+  function zip(error, stdout, stderr) { 
+      function send(error, stdout, stderr) {
+        sys.puts(stdout);
+        
+        // email
+        fs.exists(tarfile, function(exists) {
+            if (exists) {
+              // email file
+              console.log(tarfile+' emailled (Simulated/TBC)');
+            } else {
+              console.log(tarfile+' not found');
+            }
+          });       
+      } // send
+  
+    sys.puts(stdout);
+    
+    // zip 
+    var d = new Date();
+    var timestamp = d.getMonth()+'-'+d.getDate()+'-'+d.getYear()+(d.getHours()+1)+d.getMinutes();
+    var tarfile = '../../../../../public/backup_'+timestamp+'.tar';
+    console.log('Zipping to '+tarfile);
+    exec("tar -cvzf "+tarfile+" ../../../../../dump/meteor/", send); 
+
+  }
+  
+  // dump
+  console.log('Performing mongodump');
+  exec("mongodump -h 127.0.0.1 --port 3002 -d meteor", zip);
+  
+       
+}
+
+
+function sendByEmail(to, from, subject, text) {
+
+    if (!Email.send({
+      to: to,
+      from: from,
+      bcc: 'russell.hutson@exertismicro-p.co.uk',
+      subject: subject,
+      text: text
+    })) {
+      console.log ('Email sent to '+to);
+    } else {
+      console.log ('Failed to send Email sent to '+to);
+    }
+} // sendByEmail

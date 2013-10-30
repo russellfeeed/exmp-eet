@@ -5,13 +5,14 @@
       "collectionFS": {},
       "meteor-file": {},
       "incr-csv": {},
-      "node-csv-npm": {}
+      "node-csv-npm": {},
+      "reststop2": {}
     },
     "packages": {
       "collectionFS": {
         "git": "https://github.com/raix/Meteor-CollectionFS.git",
-        "tag": "v0.3.5",
-        "commit": "a6fbde6e2df3f081c51cad951305d1e0754d67de"
+        "tag": "v0.3.6",
+        "commit": "e28922685d07fc2bd17e23571eeb050cd85176f7"
       },
       "meteor-file": {
         "git": "https://github.com/EventedMind/meteor-file.git",
@@ -28,10 +29,15 @@
         "tag": "v0.3.6",
         "commit": "01be0e3e834a4f033121cb3fcc92c2697741170d"
       },
+      "reststop2": {
+        "git": "https://github.com/BeDifferential/reststop2.git",
+        "tag": "v0.5.3",
+        "commit": "d19c4ecea14646a1fc41919fa0a8e16120dbd137"
+      },
       "cfs-public-folder": {
         "git": "https://github.com/nooitaf/meteor-cfs-public-folder.git",
-        "tag": "v0.0.2",
-        "commit": "7531bc924a9b9e5ecd568932c7048692330882fb"
+        "tag": "v0.0.3",
+        "commit": "f47a0f1963be82121c975f955196b1fbb0cdbca3"
       }
     }
   }

@@ -3,6 +3,7 @@
     "collectionFS": {},
     "meteor-file": {},
     "incr-csv": {},
-    "node-csv-npm": {}
+    "node-csv-npm": {},
+    "reststop2": {}
   }
 }
