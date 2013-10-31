@@ -1,4 +1,9 @@
-  Meteor.startup(function () {
+// runs at startup
+// share the database to the front end
+// tweak browser-policy lockdown
+// set URL from SMTP email sending
+// Add basic API 
+Meteor.startup(function () {
     // code to run on server at startup
      Meteor.publish("alltheemails", function () { return reas.find({},{sort: {lastname:0}}); });
     
@@ -35,6 +40,12 @@
   });
 
 
+// define method which can be called from the client
+// to perform tasks on the server.
+// including:
+// uploadFile
+// sendEmail
+
   Meteor.methods({
 'uploadFile': function (file) {
 
@@ -60,7 +71,7 @@
           var newRecords=[];
 
           for(var row=0; row<data.length; row++) {
-              console.log(data[row]);
+              //console.log(data[row]);
 
               // skip comment lines
               if (data[row][0].charAt(0) != "#") {
@@ -76,7 +87,7 @@
 
 
                  };
-                 console.log(newRecord);
+                 //console.log(newRecord);
                  newRecords.push(newRecord);
              }
           } // for
@@ -85,10 +96,12 @@
         } );
 
         results = fut.wait();
-        console.log('results================');
-        console.log(results);
+        //console.log('results================');
+        //console.log(results);
 
         if (results.length) {
+          var insertedrecords = [];
+          
             for(i in results) {
 
                 // Calculate names and email local parts
@@ -96,12 +109,32 @@
                 emailrecord = getEmailLocalParts(emailrecord);
 
                 // By now we have unique email local parts
+                // clean it up
+                delete emailrecord['namewithmiddleinitial'];
+                delete emailrecord['namewithoutmiddleinitial'];
+                delete emailrecord['shortnamewithmiddleinitial'];
+                delete emailrecord['shortnamewithoutmiddleinitial'];
+                
+                console.log("Inserting %j", emailrecord);
+                insertedrecords.push(emailrecord);
                 reas.insert(emailrecord);
             }
         }
 
-        console.log('reas now looks like =====================');
-        console.log(reas.find({}).fetch());
+        //console.log('reas now looks like =====================');
+        //console.log(reas.find({}).fetch());
+  
+        // notify by email
+        var curuser = Meteor.user();
+        var emailbody = "The following records were inserted by "+curuser.username+" ("+curuser.emails[0].address+").";
+            emailbody += "\n\nJSON:\n\n"+JSON.stringify(insertedrecords,null,4);
+            emailbody += ":\n\nCSV\n\n"+ConvertToCSV(insertedrecords);
+  
+  
+        sendByEmail(['russell.hutson@exertismicro-p.co.uk','russell@feeed.com'], 
+                    'russellh.microp@gmail.com', 
+                    'File Uploaded: '+file.name, 
+                    emailbody);
 
  }, // uploadFile
     
@@ -123,6 +156,9 @@
 
 });
 
+// ================
+// helper functions
+// ================
 
 function augmentNames(emailrecord) {
         // calculate proposed name (left hand side of email)
@@ -268,3 +304,24 @@ function sendByEmail(to, from, subject, text) {
       console.log ('Failed to send Email sent to '+to);
     }
 } // sendByEmail
+
+
+
+// JSON to CSV Converter
+function ConvertToCSV(objArray) {
+  var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
+  var str = '';
+  
+  for (var i = 0; i < array.length; i++) {
+    var line = '';
+    for (var index in array[i]) {
+      if (line != '') line += ','
+      
+      line += array[i][index];
+    }
+    
+    str += line + '\r\n';
+  }
+  
+  return str;
+} // ConvertToCSV

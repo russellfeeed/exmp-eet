@@ -1,7 +1,8 @@
 <head>
   <title>eet</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <link rel="shortcut icon" href="favicon.png">
+  
   <!-- <script src="https://togetherjs.com/togetherjs-min.js"></script> -->
 </head>
 
@@ -26,10 +27,8 @@
             <div class="row-fluid">
                 <div class="span3">
                     <!-- <button onclick="TogetherJS(this); return false;">Start TogetherJS</button> -->
-                    {{> form}}
-                    {{> usermsgalert}}
+                    {{> form}}                    
                     {{> loggedInInfo}}
-
                 </div>
                 <div class="span9">
                     <div class="row-fluid">
@@ -66,7 +65,7 @@
 
 
 <template name="hello">
-  {{greeting}}
+  <img src="favicon.png" class="logo"><strong>{{greeting}}</strong>
 </template>
 
 <template name="loggedInInfo">
@@ -81,6 +80,7 @@
 
 
 <template name="form">
+  <div class="well">
     <form class="form-horizontal" id="nameform">
         <select name="domain" id="domain">
             {{#each alloweddomains}}
@@ -92,13 +92,19 @@
         <label class="checkbox">
             <input type="checkbox" id="nomiddlename"> No middle name
         </label>
+        {{> usermsgalert}}
         <input type="text" id="lastname"  placeholder="Last Name" class="nameinput"/>
+      <div class="buttonblock">
         <button id="save" class="btn btn-primary" {{submitbuttondisabled}}>Save</button>
-        <a href="#fumodal" role="button" class="btn" data-toggle="modal">Import</a>
-      
-        <button id="backup" class="btn btn-primary">Backup</button>
+        
+        <div class="well buttonblock">
+          <button href="#fumodal" role="button" class="btn" data-toggle="modal">Import</button>
+          <button id="backup" class="btn btn-primary">Backup</button>
+        </div>
+      </div>
 
     </form>
+  </div>
 </template>
 
 

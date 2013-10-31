@@ -1,9 +1,20 @@
 
 Meteor.subscribe("alltheemails");
 
-var alloweddomains = [{domain: 'exertismicro-p.co.uk', company: 'Exertis Micro-P'},
+var alloweddomains = [
+    {domain: 'exertismicro-p.co.uk', company: 'Exertis Micro-P'},
     {domain: 'exertisgem.co.uk', company: 'Exertis Gem'},
-    {domain: 'exertis.ie', company: 'Exertis Ireland'}];
+    {domain: 'exertis.ie', company: 'Exertis Ireland'},
+    {domain: 'exertisztorm.com', company: 'Exertis Ztorm'},
+    {domain: 'exertissupplychain.com', company: 'Exertis Supply Chain'},
+    {domain: 'exertismse.co.uk', company: 'Exertis MSE'},
+    {domain: 'exertisbm.fr', company: 'Exertis BM'},
+    {domain: 'exertiscomtrade.fr', company: 'Exertis Comtrade'},
+    {domain: 'exertisgoconnect.nl', company: 'Exertis GoConnect'},
+    {domain: 'exertisadvent.co.uk', company: 'Exertis Advent'},
+    {domain: 'exertis.com', company: 'Exertis'}
+
+   ];
 
 
 function initSessionVars() {

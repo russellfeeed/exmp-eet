@@ -8,6 +8,11 @@
     padding: 1px 3px 1px 3px;
 }
 
+img.logo {
+  height:20px;
+  margin:5px;
+}
+
 
 .filter {
     width:120px;
@@ -49,5 +54,10 @@ th.sort#lastname i {
 }
 
 .nameinput {
-    margin-bottom:3px;
+  margin-top:10px;
+  margin-bottom:3px;
+}
+
+.buttonblock {
+  margin-top:20px;
 }
