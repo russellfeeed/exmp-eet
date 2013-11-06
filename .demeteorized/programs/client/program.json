@@ -1,0 +1,119 @@
+{
+  "format": "browser-program-pre1",
+  "page": "app.html",
+  "manifest": [
+    {
+      "path": "72c1b9e20448cd8dc1299dcc3a46726a7394dec2.js",
+      "where": "client",
+      "type": "js",
+      "cacheable": true,
+      "url": "/72c1b9e20448cd8dc1299dcc3a46726a7394dec2.js",
+      "size": 403802,
+      "hash": "72c1b9e20448cd8dc1299dcc3a46726a7394dec2"
+    },
+    {
+      "path": "efa53a49b7f1108e9e40fa3c4e2df78aca0d369b.css",
+      "where": "client",
+      "type": "css",
+      "cacheable": true,
+      "url": "/efa53a49b7f1108e9e40fa3c4e2df78aca0d369b.css",
+      "size": 131586,
+      "hash": "efa53a49b7f1108e9e40fa3c4e2df78aca0d369b"
+    },
+    {
+      "path": "packages/bootstrap/img/glyphicons-halflings.png",
+      "where": "client",
+      "type": "asset",
+      "cacheable": false,
+      "url": "/packages/bootstrap/img/glyphicons-halflings.png",
+      "size": 12799,
+      "hash": "84f613631b07d4fe22acbab50e551c0fe04bd78b"
+    },
+    {
+      "path": "packages/bootstrap/img/glyphicons-halflings-white.png",
+      "where": "client",
+      "type": "asset",
+      "cacheable": false,
+      "url": "/packages/bootstrap/img/glyphicons-halflings-white.png",
+      "size": 8777,
+      "hash": "a25c4705320fd63c33790e666872910e702b9bf6"
+    },
+    {
+      "path": "app/backup_9-30-1132129.tar",
+      "where": "client",
+      "type": "asset",
+      "cacheable": false,
+      "url": "/backup_9-30-1132129.tar",
+      "size": 1208,
+      "hash": "bca8fe411d714f0bf57da5134e80fb4d6b84a584"
+    },
+    {
+      "path": "app/backup_9-30-1132130.tar",
+      "where": "client",
+      "type": "asset",
+      "cacheable": false,
+      "url": "/backup_9-30-1132130.tar",
+      "size": 1208,
+      "hash": "c2d6228eb2890ed5502e9ed94088c54a6ea50001"
+    },
+    {
+      "path": "app/backup_9-30-1132142.tar",
+      "where": "client",
+      "type": "asset",
+      "cacheable": false,
+      "url": "/backup_9-30-1132142.tar",
+      "size": 1208,
+      "hash": "5543f30bdf8a47e47cd3b6bb8724ab4dfe6ea716"
+    },
+    {
+      "path": "app/backup_9-30-1132149.tar",
+      "where": "client",
+      "type": "asset",
+      "cacheable": false,
+      "url": "/backup_9-30-1132149.tar",
+      "size": 1208,
+      "hash": "e8913bb7107889f9f9e86a2a6411331295c82acc"
+    },
+    {
+      "path": "app/backup_9-30-1132216.tar",
+      "where": "client",
+      "type": "asset",
+      "cacheable": false,
+      "url": "/backup_9-30-1132216.tar",
+      "size": 1208,
+      "hash": "3d8e8ab41e42596726a203cbf209f04baa83075b"
+    },
+    {
+      "path": "app/favicon.png",
+      "where": "client",
+      "type": "asset",
+      "cacheable": false,
+      "url": "/favicon.png",
+      "size": 1989,
+      "hash": "310944cf8fb1e3cd534cd57d0300cce3ae7cf91a"
+    },
+    {
+      "path": "app/uploads/data.csv",
+      "where": "client",
+      "type": "asset",
+      "cacheable": false,
+      "url": "/uploads/data.csv",
+      "size": 155,
+      "hash": "2acb6504394d7093230ae2a7c88519e8b2e6aed4"
+    },
+    {
+      "path": "app/uploads/placeholder.txt",
+      "where": "client",
+      "type": "asset",
+      "cacheable": false,
+      "url": "/uploads/placeholder.txt",
+      "size": 0,
+      "hash": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+    },
+    {
+      "path": "app.html",
+      "where": "internal",
+      "hash": "a07aeece85c51282ac81558a5e572963dbd82d69"
+    }
+  ]
+}
