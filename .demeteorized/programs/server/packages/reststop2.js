@@ -27,299 +27,301 @@ _RESTstop = function() {                                                        
   this._config = {                                                                                       // 3
     use_auth: false,                                                                                     // 4
     api_path: '/api',                                                                                    // 5
-  };                                                                                                     // 6
-  this._started = false;                                                                                 // 7
-};                                                                                                       // 8
-                                                                                                         // 9
-// simply match this path to this function                                                               // 10
-_RESTstop.prototype.add = function(path, options, endpoint)  {                                           // 11
-  var self = this;                                                                                       // 12
-                                                                                                         // 13
-  if(path[0] != "/") path = "/" + path;                                                                  // 14
+    onLoggedIn: function(){},                                                                            // 6
+    onLoggedOut: function(){}                                                                            // 7
+  };                                                                                                     // 8
+  this._started = false;                                                                                 // 9
+};                                                                                                       // 10
+                                                                                                         // 11
+// simply match this path to this function                                                               // 12
+_RESTstop.prototype.add = function(path, options, endpoint)  {                                           // 13
+  var self = this;                                                                                       // 14
                                                                                                          // 15
-  // Start serving on first add() call                                                                   // 16
-  if(!this._started){                                                                                    // 17
-    this._start();                                                                                       // 18
-  }                                                                                                      // 19
-                                                                                                         // 20
-  if (_.isObject(path) && ! _.isRegExp(path)) {                                                          // 21
-    _.each(path, function(endpoint, p) {                                                                 // 22
-      self.add(p, endpoint);                                                                             // 23
-    });                                                                                                  // 24
-  } else {                                                                                               // 25
-    if (! endpoint) {                                                                                    // 26
-      // no options were supplied so 2nd parameter is the endpoint                                       // 27
-      endpoint = options;                                                                                // 28
-      options = null;                                                                                    // 29
-    }                                                                                                    // 30
-    if (! _.isFunction(endpoint)) {                                                                      // 31
-      endpoint = _.bind(_.identity, null, endpoint);                                                     // 32
-    }                                                                                                    // 33
-    self._routes.push([new RESTstop.Route(self._config.api_path + path, options), endpoint]);            // 34
-  }                                                                                                      // 35
-};                                                                                                       // 36
-                                                                                                         // 37
-_RESTstop.prototype.match = function(request, response) {                                                // 38
-  for (var i = 0; i < this._routes.length; i++) {                                                        // 39
-    var params = {}, route = this._routes[i];                                                            // 40
-                                                                                                         // 41
-    if (route[0].match(request.url, request.method, params)) {                                           // 42
-      context = {request: request, response: response, params: params};                                  // 43
-                                                                                                         // 44
-      var args = [];                                                                                     // 45
-      for (var key in context.params)                                                                    // 46
-        args.push(context.params[key]);                                                                  // 47
-                                                                                                         // 48
-      if(request.method == "POST" || request.method == "PUT") {                                          // 49
-        _.extend(context.params, request.body);                                                          // 50
-      }                                                                                                  // 51
-      if(request.method == "GET" || _.size(request.query)) {                                             // 52
-        _.extend(context.params, request.query);                                                         // 53
-      }                                                                                                  // 54
-                                                                                                         // 55
-      if(this._config.use_auth) {                                                                        // 56
-        context.user = false;                                                                            // 57
-                                                                                                         // 58
-        var userId = context.params.userId;                                                              // 59
-        var loginToken = context.params.loginToken;                                                      // 60
-                                                                                                         // 61
-        if(request.headers['x-login-token']) {                                                           // 62
-          loginToken = request.headers['x-login-token'];                                                 // 63
-        }                                                                                                // 64
-        if(request.headers['x-user-id']) {                                                               // 65
-          userId = request.headers['x-user-id'];                                                         // 66
-        }                                                                                                // 67
-                                                                                                         // 68
-        // Get the user object                                                                           // 69
-        if(userId && loginToken) {                                                                       // 70
-          context.user = Meteor.users.findOne({                                                          // 71
-            _id: userId,                                                                                 // 72
-            "services.resume.loginTokens.token": loginToken                                              // 73
-          });                                                                                            // 74
-        }                                                                                                // 75
-                                                                                                         // 76
-        // Return an error if no user and login required                                                 // 77
-        if(route[0].options.require_login && !context.user) {                                            // 78
-          return [403, {success: false, message: "You must be logged in to do this."}];                  // 79
-        }                                                                                                // 80
-      }                                                                                                  // 81
-                                                                                                         // 82
-      try {                                                                                              // 83
-        return route[1].apply(context, args);                                                            // 84
-      } catch (e) {                                                                                      // 85
-        return [e.error || 404, {success: false, message: e.reason || e.message}];                       // 86
-      }                                                                                                  // 87
-    }                                                                                                    // 88
-  }                                                                                                      // 89
-  return false;                                                                                          // 90
-};                                                                                                       // 91
-                                                                                                         // 92
-_RESTstop.prototype.configure = function(config){                                                        // 93
-  if(this._started){                                                                                     // 94
-    throw new Error("RESTstop.configure() has to be called before first call to RESTstop.add()");        // 95
-  }                                                                                                      // 96
-                                                                                                         // 97
-  _.extend(this._config, config);                                                                        // 98
+  if(path[0] != "/") path = "/" + path;                                                                  // 16
+                                                                                                         // 17
+  // Start serving on first add() call                                                                   // 18
+  if(!this._started){                                                                                    // 19
+    this._start();                                                                                       // 20
+  }                                                                                                      // 21
+                                                                                                         // 22
+  if (_.isObject(path) && ! _.isRegExp(path)) {                                                          // 23
+    _.each(path, function(endpoint, p) {                                                                 // 24
+      self.add(p, endpoint);                                                                             // 25
+    });                                                                                                  // 26
+  } else {                                                                                               // 27
+    if (! endpoint) {                                                                                    // 28
+      // no options were supplied so 2nd parameter is the endpoint                                       // 29
+      endpoint = options;                                                                                // 30
+      options = null;                                                                                    // 31
+    }                                                                                                    // 32
+    if (! _.isFunction(endpoint)) {                                                                      // 33
+      endpoint = _.bind(_.identity, null, endpoint);                                                     // 34
+    }                                                                                                    // 35
+    self._routes.push([new RESTstop.Route(self._config.api_path + path, options), endpoint]);            // 36
+  }                                                                                                      // 37
+};                                                                                                       // 38
+                                                                                                         // 39
+_RESTstop.prototype.match = function(request, response) {                                                // 40
+  for (var i = 0; i < this._routes.length; i++) {                                                        // 41
+    var params = {}, route = this._routes[i];                                                            // 42
+                                                                                                         // 43
+    if (route[0].match(request.url, request.method, params)) {                                           // 44
+      context = {request: request, response: response, params: params};                                  // 45
+                                                                                                         // 46
+      var args = [];                                                                                     // 47
+      for (var key in context.params)                                                                    // 48
+        args.push(context.params[key]);                                                                  // 49
+                                                                                                         // 50
+      if(request.method == "POST" || request.method == "PUT") {                                          // 51
+        _.extend(context.params, request.body);                                                          // 52
+      }                                                                                                  // 53
+      if(request.method == "GET" || _.size(request.query)) {                                             // 54
+        _.extend(context.params, request.query);                                                         // 55
+      }                                                                                                  // 56
+                                                                                                         // 57
+      if(this._config.use_auth) {                                                                        // 58
+        context.user = false;                                                                            // 59
+                                                                                                         // 60
+        var userId = context.params.userId;                                                              // 61
+        var loginToken = context.params.loginToken;                                                      // 62
+                                                                                                         // 63
+        if(request.headers['x-login-token']) {                                                           // 64
+          loginToken = request.headers['x-login-token'];                                                 // 65
+        }                                                                                                // 66
+        if(request.headers['x-user-id']) {                                                               // 67
+          userId = request.headers['x-user-id'];                                                         // 68
+        }                                                                                                // 69
+                                                                                                         // 70
+        // Get the user object                                                                           // 71
+        if(userId && loginToken) {                                                                       // 72
+          context.user = Meteor.users.findOne({                                                          // 73
+            _id: userId,                                                                                 // 74
+            "services.resume.loginTokens.token": loginToken                                              // 75
+          });                                                                                            // 76
+        }                                                                                                // 77
+                                                                                                         // 78
+        // Return an error if no user and login required                                                 // 79
+        if(route[0].options.require_login && !context.user) {                                            // 80
+          return [403, {success: false, message: "You must be logged in to do this."}];                  // 81
+        }                                                                                                // 82
+      }                                                                                                  // 83
+                                                                                                         // 84
+      try {                                                                                              // 85
+        return route[1].apply(context, args);                                                            // 86
+      } catch (e) {                                                                                      // 87
+        return [e.error || 404, {success: false, message: e.reason || e.message}];                       // 88
+      }                                                                                                  // 89
+    }                                                                                                    // 90
+  }                                                                                                      // 91
+  return false;                                                                                          // 92
+};                                                                                                       // 93
+                                                                                                         // 94
+_RESTstop.prototype.configure = function(config){                                                        // 95
+  if(this._started){                                                                                     // 96
+    throw new Error("RESTstop.configure() has to be called before first call to RESTstop.add()");        // 97
+  }                                                                                                      // 98
                                                                                                          // 99
-  if(this._config.api_path[0] != "/") {                                                                  // 100
-    this._config.api_path = "/"  +this._config.api_path;                                                 // 101
-  }                                                                                                      // 102
-};                                                                                                       // 103
-                                                                                                         // 104
-_RESTstop.prototype._start = function(){                                                                 // 105
-  var self = this;                                                                                       // 106
-                                                                                                         // 107
-  if(this._started){                                                                                     // 108
-    throw new Error("RESTstop has already been started");                                                // 109
-  }                                                                                                      // 110
-                                                                                                         // 111
-  this._started = true;                                                                                  // 112
+  _.extend(this._config, config);                                                                        // 100
+                                                                                                         // 101
+  if(this._config.api_path[0] != "/") {                                                                  // 102
+    this._config.api_path = "/"  +this._config.api_path;                                                 // 103
+  }                                                                                                      // 104
+};                                                                                                       // 105
+                                                                                                         // 106
+_RESTstop.prototype._start = function(){                                                                 // 107
+  var self = this;                                                                                       // 108
+                                                                                                         // 109
+  if(this._started){                                                                                     // 110
+    throw new Error("RESTstop has already been started");                                                // 111
+  }                                                                                                      // 112
                                                                                                          // 113
-  // hook up the serving                                                                                 // 114
-  RoutePolicy.declare('/' + this._config.api_path + '/', 'network');                                     // 115
-                                                                                                         // 116
-  var self = this,                                                                                       // 117
-      connect = Npm.require("connect");                                                                  // 118
-                                                                                                         // 119
-  WebApp.connectHandlers.use(connect.query());                                                           // 120
-  WebApp.connectHandlers.use(connect.bodyParser());                                                      // 121
-  WebApp.connectHandlers.use(function(req, res, next) {                                                  // 122
-    if (req.url.slice(0, self._config.api_path.length) !== self._config.api_path) {                      // 123
-      return next();                                                                                     // 124
-    }                                                                                                    // 125
-                                                                                                         // 126
-    // need to wrap in a fiber in case they do something async                                           // 127
-    // (e.g. in the database)                                                                            // 128
-    if(typeof(Fiber)=="undefined") Fiber = Npm.require('fibers');                                        // 129
-                                                                                                         // 130
-    Fiber(function() {                                                                                   // 131
-      res.statusCode = 200; // 200 response, by default                                                  // 132
-      var output = RESTstop.match(req, res);                                                             // 133
-                                                                                                         // 134
-      if (output === false) {                                                                            // 135
-        output = [404, {success: false, message:'API method not found'}];                                // 136
-      }                                                                                                  // 137
-                                                                                                         // 138
-      // parse out the various type of response we can have                                              // 139
+  this._started = true;                                                                                  // 114
+                                                                                                         // 115
+  // hook up the serving                                                                                 // 116
+  RoutePolicy.declare('/' + this._config.api_path + '/', 'network');                                     // 117
+                                                                                                         // 118
+  var self = this,                                                                                       // 119
+      connect = Npm.require("connect");                                                                  // 120
+                                                                                                         // 121
+  WebApp.connectHandlers.use(connect.query());                                                           // 122
+  WebApp.connectHandlers.use(connect.bodyParser());                                                      // 123
+  WebApp.connectHandlers.use(function(req, res, next) {                                                  // 124
+    if (req.url.slice(0, self._config.api_path.length) !== self._config.api_path) {                      // 125
+      return next();                                                                                     // 126
+    }                                                                                                    // 127
+                                                                                                         // 128
+    // need to wrap in a fiber in case they do something async                                           // 129
+    // (e.g. in the database)                                                                            // 130
+    if(typeof(Fiber)=="undefined") Fiber = Npm.require('fibers');                                        // 131
+                                                                                                         // 132
+    Fiber(function() {                                                                                   // 133
+      res.statusCode = 200; // 200 response, by default                                                  // 134
+      var output = RESTstop.match(req, res);                                                             // 135
+                                                                                                         // 136
+      if (output === false) {                                                                            // 137
+        output = [404, {success: false, message:'API method not found'}];                                // 138
+      }                                                                                                  // 139
                                                                                                          // 140
-      // array can be                                                                                    // 141
-      // [content], [status, content], [status, headers, content]                                        // 142
-      if (_.isArray(output)) {                                                                           // 143
-        // copy the array so we aren't actually modifying it!                                            // 144
-        output = output.slice(0);                                                                        // 145
-                                                                                                         // 146
-        if (output.length === 3) {                                                                       // 147
-          var headers = output.splice(1, 1)[0];                                                          // 148
-          _.each(headers, function(value, key) {                                                         // 149
-            res.setHeader(key, value);                                                                   // 150
-          });                                                                                            // 151
-        }                                                                                                // 152
-                                                                                                         // 153
-        if (output.length === 2) {                                                                       // 154
-          res.statusCode = output.shift();                                                               // 155
-        }                                                                                                // 156
-                                                                                                         // 157
-        output = output[0];                                                                              // 158
-      }                                                                                                  // 159
-                                                                                                         // 160
-      if (_.isNumber(output)) {                                                                          // 161
-        res.statusCode = output;                                                                         // 162
-        output = '';                                                                                     // 163
-      }                                                                                                  // 164
-                                                                                                         // 165
-      if(_.isObject(output)) {                                                                           // 166
-        output = JSON.stringify(output);                                                                 // 167
-        res.setHeader("Content-Type", "text/json");                                                      // 168
-      }                                                                                                  // 169
-                                                                                                         // 170
-      return res.end(output);                                                                            // 171
-    }).run();                                                                                            // 172
-  });                                                                                                    // 173
-                                                                                                         // 174
-  if(this._config.use_auth) {                                                                            // 175
-    RESTstop.initAuth();                                                                                 // 176
-  }                                                                                                      // 177
-};                                                                                                       // 178
-                                                                                                         // 179
-_RESTstop.prototype.call = function (context, name, args) {                                              // 180
-  var args = Array.prototype.slice.call(arguments, 2);                                                   // 181
-  return this._apply(context, name, args, 'method_handlers');                                            // 182
-};                                                                                                       // 183
-                                                                                                         // 184
-_RESTstop.prototype.apply = function (context, name, args) {                                             // 185
-  return this._apply(context, name, args, 'method_handlers');                                            // 186
-};                                                                                                       // 187
-                                                                                                         // 188
-_RESTstop.prototype.getPublished = function (context, name, args) {                                      // 189
-  return this._apply(context, name, args, 'publish_handlers');                                           // 190
-};                                                                                                       // 191
-                                                                                                         // 192
-MethodInvocation = function (options) {                                                                  // 193
-  var self = this;                                                                                       // 194
-                                                                                                         // 195
-  // true if we're running not the actual method, but a stub (that is,                                   // 196
-  // if we're on a client (which may be a browser, or in the future a                                    // 197
-  // server connecting to another server) and presently running a                                        // 198
-  // simulation of a server-side method for latency compensation                                         // 199
-  // purposes). not currently true except in a client such as a browser,                                 // 200
-  // since there's usually no point in running stubs unless you have a                                   // 201
-  // zero-latency connection to the user.                                                                // 202
-  this.isSimulation = options.isSimulation;                                                              // 203
-                                                                                                         // 204
-  // call this function to allow other method invocations (from the                                      // 205
-  // same client) to continue running without waiting for this one to                                    // 206
-  // complete.                                                                                           // 207
-  this._unblock = options.unblock || function () {};                                                     // 208
-  this._calledUnblock = false;                                                                           // 209
-                                                                                                         // 210
-  // current user id                                                                                     // 211
-  this.userId = options.userId;                                                                          // 212
-                                                                                                         // 213
-  // sets current user id in all appropriate server contexts and                                         // 214
-  // reruns subscriptions                                                                                // 215
-  this._setUserId = options.setUserId || function () {};                                                 // 216
-                                                                                                         // 217
-  // used for associating the connection with a login token so that the                                  // 218
-  // connection can be closed if the token is no longer valid                                            // 219
-  this._setLoginToken = options._setLoginToken || function () {};                                        // 220
-                                                                                                         // 221
-  // Scratch data scoped to this connection (livedata_connection on the                                  // 222
-  // client, livedata_session on the server). This is only used                                          // 223
-  // internally, but we should have real and documented API for this                                     // 224
-  // sort of thing someday.                                                                              // 225
-  this._sessionData = options.sessionData;                                                               // 226
-};                                                                                                       // 227
-                                                                                                         // 228
-_.extend(MethodInvocation.prototype, {                                                                   // 229
-  unblock: function () {                                                                                 // 230
-    var self = this;                                                                                     // 231
-    self._calledUnblock = true;                                                                          // 232
-    self._unblock();                                                                                     // 233
-  },                                                                                                     // 234
-  setUserId: function(userId) {                                                                          // 235
-    var self = this;                                                                                     // 236
-    if (self._calledUnblock)                                                                             // 237
-      throw new Error("Can't call setUserId in a method after calling unblock");                         // 238
-    self.userId = userId;                                                                                // 239
-    self._setUserId(userId);                                                                             // 240
-  },                                                                                                     // 241
-  _setLoginToken: function (token) {                                                                     // 242
-    this._setLoginToken(token);                                                                          // 243
-    this._sessionData.loginToken = token;                                                                // 244
-  },                                                                                                     // 245
-  _getLoginToken: function (token) {                                                                     // 246
-    return this._sessionData.loginToken;                                                                 // 247
-  }                                                                                                      // 248
-});                                                                                                      // 249
-                                                                                                         // 250
-_RESTstop.prototype._apply = function (context, name, args, handler_name) {                              // 251
-  var self = Meteor.default_server;                                                                      // 252
-                                                                                                         // 253
-  // Run the handler                                                                                     // 254
-  var handler = self[handler_name][name];                                                                // 255
-  var exception;                                                                                         // 256
-  if (!handler) {                                                                                        // 257
-    exception = new Meteor.Error(404, "Method not found");                                               // 258
-  } else {                                                                                               // 259
-                                                                                                         // 260
-    var userId = context.user ? context.user._id : null;                                                 // 261
-    var setUserId = function() {                                                                         // 262
-      throw new Error("Can't call setUserId on a server initiated method call");                         // 263
-    };                                                                                                   // 264
-                                                                                                         // 265
-    var invocation = new MethodInvocation({                                                              // 266
-      isSimulation: false,                                                                               // 267
-      userId: context.user._id, setUserId: setUserId,                                                    // 268
-      sessionData: self.sessionData                                                                      // 269
-    });                                                                                                  // 270
-                                                                                                         // 271
-    try {                                                                                                // 272
-      var result = DDP._CurrentInvocation.withValue(invocation, function () {                            // 273
-        return maybeAuditArgumentChecks(                                                                 // 274
-          handler, invocation, args, "internal call to '" + name + "'");                                 // 275
-      });                                                                                                // 276
-    } catch (e) {                                                                                        // 277
-      exception = e;                                                                                     // 278
-    }                                                                                                    // 279
-  }                                                                                                      // 280
-                                                                                                         // 281
-  if (exception)                                                                                         // 282
-    throw exception;                                                                                     // 283
-  return result;                                                                                         // 284
-};                                                                                                       // 285
-                                                                                                         // 286
-var maybeAuditArgumentChecks = function (f, context, args, description) {                                // 287
-  args = args || [];                                                                                     // 288
-  if (Package['audit-argument-checks']) {                                                                // 289
-    return Match._failIfArgumentsAreNotAllChecked(                                                       // 290
-      f, context, args, description);                                                                    // 291
-  }                                                                                                      // 292
-  return f.apply(context, args);                                                                         // 293
-};                                                                                                       // 294
-                                                                                                         // 295
-// Make the router available                                                                             // 296
-RESTstop = new _RESTstop();                                                                              // 297
-                                                                                                         // 298
+      // parse out the various type of response we can have                                              // 141
+                                                                                                         // 142
+      // array can be                                                                                    // 143
+      // [content], [status, content], [status, headers, content]                                        // 144
+      if (_.isArray(output)) {                                                                           // 145
+        // copy the array so we aren't actually modifying it!                                            // 146
+        output = output.slice(0);                                                                        // 147
+                                                                                                         // 148
+        if (output.length === 3) {                                                                       // 149
+          var headers = output.splice(1, 1)[0];                                                          // 150
+          _.each(headers, function(value, key) {                                                         // 151
+            res.setHeader(key, value);                                                                   // 152
+          });                                                                                            // 153
+        }                                                                                                // 154
+                                                                                                         // 155
+        if (output.length === 2) {                                                                       // 156
+          res.statusCode = output.shift();                                                               // 157
+        }                                                                                                // 158
+                                                                                                         // 159
+        output = output[0];                                                                              // 160
+      }                                                                                                  // 161
+                                                                                                         // 162
+      if (_.isNumber(output)) {                                                                          // 163
+        res.statusCode = output;                                                                         // 164
+        output = '';                                                                                     // 165
+      }                                                                                                  // 166
+                                                                                                         // 167
+      if(_.isObject(output)) {                                                                           // 168
+        output = JSON.stringify(output);                                                                 // 169
+        res.setHeader("Content-Type", "text/json");                                                      // 170
+      }                                                                                                  // 171
+                                                                                                         // 172
+      return res.end(output);                                                                            // 173
+    }).run();                                                                                            // 174
+  });                                                                                                    // 175
+                                                                                                         // 176
+  if(this._config.use_auth) {                                                                            // 177
+    RESTstop.initAuth();                                                                                 // 178
+  }                                                                                                      // 179
+};                                                                                                       // 180
+                                                                                                         // 181
+_RESTstop.prototype.call = function (context, name, args) {                                              // 182
+  var args = Array.prototype.slice.call(arguments, 2);                                                   // 183
+  return this._apply(context, name, args, 'method_handlers');                                            // 184
+};                                                                                                       // 185
+                                                                                                         // 186
+_RESTstop.prototype.apply = function (context, name, args) {                                             // 187
+  return this._apply(context, name, args, 'method_handlers');                                            // 188
+};                                                                                                       // 189
+                                                                                                         // 190
+_RESTstop.prototype.getPublished = function (context, name, args) {                                      // 191
+  return this._apply(context, name, args, 'publish_handlers');                                           // 192
+};                                                                                                       // 193
+                                                                                                         // 194
+MethodInvocation = function (options) {                                                                  // 195
+  var self = this;                                                                                       // 196
+                                                                                                         // 197
+  // true if we're running not the actual method, but a stub (that is,                                   // 198
+  // if we're on a client (which may be a browser, or in the future a                                    // 199
+  // server connecting to another server) and presently running a                                        // 200
+  // simulation of a server-side method for latency compensation                                         // 201
+  // purposes). not currently true except in a client such as a browser,                                 // 202
+  // since there's usually no point in running stubs unless you have a                                   // 203
+  // zero-latency connection to the user.                                                                // 204
+  this.isSimulation = options.isSimulation;                                                              // 205
+                                                                                                         // 206
+  // call this function to allow other method invocations (from the                                      // 207
+  // same client) to continue running without waiting for this one to                                    // 208
+  // complete.                                                                                           // 209
+  this._unblock = options.unblock || function () {};                                                     // 210
+  this._calledUnblock = false;                                                                           // 211
+                                                                                                         // 212
+  // current user id                                                                                     // 213
+  this.userId = options.userId;                                                                          // 214
+                                                                                                         // 215
+  // sets current user id in all appropriate server contexts and                                         // 216
+  // reruns subscriptions                                                                                // 217
+  this._setUserId = options.setUserId || function () {};                                                 // 218
+                                                                                                         // 219
+  // used for associating the connection with a login token so that the                                  // 220
+  // connection can be closed if the token is no longer valid                                            // 221
+  this._setLoginToken = options._setLoginToken || function () {};                                        // 222
+                                                                                                         // 223
+  // Scratch data scoped to this connection (livedata_connection on the                                  // 224
+  // client, livedata_session on the server). This is only used                                          // 225
+  // internally, but we should have real and documented API for this                                     // 226
+  // sort of thing someday.                                                                              // 227
+  this._sessionData = options.sessionData;                                                               // 228
+};                                                                                                       // 229
+                                                                                                         // 230
+_.extend(MethodInvocation.prototype, {                                                                   // 231
+  unblock: function () {                                                                                 // 232
+    var self = this;                                                                                     // 233
+    self._calledUnblock = true;                                                                          // 234
+    self._unblock();                                                                                     // 235
+  },                                                                                                     // 236
+  setUserId: function(userId) {                                                                          // 237
+    var self = this;                                                                                     // 238
+    if (self._calledUnblock)                                                                             // 239
+      throw new Error("Can't call setUserId in a method after calling unblock");                         // 240
+    self.userId = userId;                                                                                // 241
+    self._setUserId(userId);                                                                             // 242
+  },                                                                                                     // 243
+  _setLoginToken: function (token) {                                                                     // 244
+    this._setLoginToken(token);                                                                          // 245
+    this._sessionData.loginToken = token;                                                                // 246
+  },                                                                                                     // 247
+  _getLoginToken: function (token) {                                                                     // 248
+    return this._sessionData.loginToken;                                                                 // 249
+  }                                                                                                      // 250
+});                                                                                                      // 251
+                                                                                                         // 252
+_RESTstop.prototype._apply = function (context, name, args, handler_name) {                              // 253
+  var self = Meteor.default_server;                                                                      // 254
+                                                                                                         // 255
+  // Run the handler                                                                                     // 256
+  var handler = self[handler_name][name];                                                                // 257
+  var exception;                                                                                         // 258
+  if (!handler) {                                                                                        // 259
+    exception = new Meteor.Error(404, "Method not found");                                               // 260
+  } else {                                                                                               // 261
+                                                                                                         // 262
+    var userId = context.user ? context.user._id : null;                                                 // 263
+    var setUserId = function() {                                                                         // 264
+      throw new Error("Can't call setUserId on a server initiated method call");                         // 265
+    };                                                                                                   // 266
+                                                                                                         // 267
+    var invocation = new MethodInvocation({                                                              // 268
+      isSimulation: false,                                                                               // 269
+      userId: context.user._id, setUserId: setUserId,                                                    // 270
+      sessionData: self.sessionData                                                                      // 271
+    });                                                                                                  // 272
+                                                                                                         // 273
+    try {                                                                                                // 274
+      var result = DDP._CurrentInvocation.withValue(invocation, function () {                            // 275
+        return maybeAuditArgumentChecks(                                                                 // 276
+          handler, invocation, args, "internal call to '" + name + "'");                                 // 277
+      });                                                                                                // 278
+    } catch (e) {                                                                                        // 279
+      exception = e;                                                                                     // 280
+    }                                                                                                    // 281
+  }                                                                                                      // 282
+                                                                                                         // 283
+  if (exception)                                                                                         // 284
+    throw exception;                                                                                     // 285
+  return result;                                                                                         // 286
+};                                                                                                       // 287
+                                                                                                         // 288
+var maybeAuditArgumentChecks = function (f, context, args, description) {                                // 289
+  args = args || [];                                                                                     // 290
+  if (Package['audit-argument-checks']) {                                                                // 291
+    return Match._failIfArgumentsAreNotAllChecked(                                                       // 292
+      f, context, args, description);                                                                    // 293
+  }                                                                                                      // 294
+  return f.apply(context, args);                                                                         // 295
+};                                                                                                       // 296
+                                                                                                         // 297
+// Make the router available                                                                             // 298
+RESTstop = new _RESTstop();                                                                              // 299
+                                                                                                         // 300
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 }).call(this);
@@ -593,24 +595,36 @@ _RESTstop.prototype.initAuth = function() {                                     
       return [e.error, {success: false, message: e.reason}];                                             // 68
     }                                                                                                    // 69
                                                                                                          // 70
-    login.success = true;                                                                                // 71
-    return login;                                                                                        // 72
-  });                                                                                                    // 73
-                                                                                                         // 74
-  RESTstop.add('logout', {'method': 'GET', require_login: true}, function() {                            // 75
-    var loginToken = this.params.loginToken;                                                             // 76
-    if(this.request.headers['x-login-token']) {                                                          // 77
-      loginToken = this.request.headers['x-login-token'];                                                // 78
-    }                                                                                                    // 79
+    // Get the user object                                                                               // 71
+    var context = [];                                                                                    // 72
+    if(login.userId && login.loginToken) {                                                               // 73
+      context.user = Meteor.users.findOne({                                                              // 74
+        _id: login.userId,                                                                               // 75
+        "services.resume.loginTokens.token": login.loginToken                                            // 76
+      });                                                                                                // 77
+    }                                                                                                    // 78
+    RESTstop._config.onLoggedIn.apply(context);                                                          // 79
                                                                                                          // 80
-    // Log the user out                                                                                  // 81
-    Meteor.users.update(                                                                                 // 82
-    this.user._id, {$pull: {'services.resume.loginTokens': {token: loginToken}}});                       // 83
+    login.success = true;                                                                                // 81
+    return login;                                                                                        // 82
+  });                                                                                                    // 83
                                                                                                          // 84
-    return {success: true, message: "You've been logged out!"};                                          // 85
-  });                                                                                                    // 86
-};                                                                                                       // 87
-                                                                                                         // 88
+  RESTstop.add('logout', {'method': 'GET', require_login: true}, function() {                            // 85
+    var loginToken = this.params.loginToken;                                                             // 86
+    if(this.request.headers['x-login-token']) {                                                          // 87
+      loginToken = this.request.headers['x-login-token'];                                                // 88
+    }                                                                                                    // 89
+                                                                                                         // 90
+    // Log the user out                                                                                  // 91
+    Meteor.users.update(                                                                                 // 92
+    this.user._id, {$pull: {'services.resume.loginTokens': {token: loginToken}}});                       // 93
+                                                                                                         // 94
+    RESTstop._config.onLoggedOut.call(this);                                                             // 95
+                                                                                                         // 96
+    return {success: true, message: "You've been logged out!"};                                          // 97
+  });                                                                                                    // 98
+};                                                                                                       // 99
+                                                                                                         // 100
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 }).call(this);

@@ -82,9 +82,9 @@ Meteor.startup(function () {
               if (data[row][0].charAt(0) != "#") {
 
                 newRecord = {
-                     'firstname': data[row][0],
-                     'middlename': data[row][1],
-                     'lastname': data[row][2],
+                     'firstname': data[row][0].trim(),
+                     'middlename': data[row][1].trim(),
+                     'lastname': data[row][2].trim(),
                      'domain': data[row][3],
                      'disabled': false
                      //'emaillocalpart': ,
@@ -112,6 +112,7 @@ Meteor.startup(function () {
                 // Calculate names and email local parts
                 emailrecord = augmentNames(results[i]);
                 emailrecord = getEmailLocalParts(emailrecord);
+                emailrecord = capitalizeNames(emailrecord);
 
                 // By now we have unique email local parts
                 // clean it up
@@ -253,6 +254,16 @@ function getEmailLocalParts(emailrecord) {
 
 } // getEmailLocalParts
 
+
+
+function capitalizeNames(emailrecord) {
+  
+  emailrecord['firstname']  = emailrecord['firstname'].capitalize();
+  emailrecord['middlename'] = emailrecord['middlename'].capitalize();
+  emailrecord['lastname']   = emailrecord['lastname'].capitalize();
+  
+  return emailrecord;
+} // capitalizeNames
 
 function backupMongoDB() {
   var sys = Npm.require('sys')

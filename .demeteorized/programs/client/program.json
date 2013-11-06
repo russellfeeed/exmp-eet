@@ -3,13 +3,13 @@
   "page": "app.html",
   "manifest": [
     {
-      "path": "72c1b9e20448cd8dc1299dcc3a46726a7394dec2.js",
+      "path": "3eb0957c4c79a9f8743cd1e017ccffcf90a35ce7.js",
       "where": "client",
       "type": "js",
       "cacheable": true,
-      "url": "/72c1b9e20448cd8dc1299dcc3a46726a7394dec2.js",
-      "size": 403802,
-      "hash": "72c1b9e20448cd8dc1299dcc3a46726a7394dec2"
+      "url": "/3eb0957c4c79a9f8743cd1e017ccffcf90a35ce7.js",
+      "size": 404639,
+      "hash": "3eb0957c4c79a9f8743cd1e017ccffcf90a35ce7"
     },
     {
       "path": "efa53a49b7f1108e9e40fa3c4e2df78aca0d369b.css",
@@ -98,8 +98,8 @@
       "type": "asset",
       "cacheable": false,
       "url": "/uploads/data.csv",
-      "size": 155,
-      "hash": "2acb6504394d7093230ae2a7c88519e8b2e6aed4"
+      "size": 156,
+      "hash": "3f8cf72572a82b59c03b32a16ec2a8808072b533"
     },
     {
       "path": "app/uploads/placeholder.txt",
@@ -113,7 +113,7 @@
     {
       "path": "app.html",
       "where": "internal",
-      "hash": "a07aeece85c51282ac81558a5e572963dbd82d69"
+      "hash": "4de6acac831b4a690a1bb4d617758e2ed11b8252"
     }
   ]
 }

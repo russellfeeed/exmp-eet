@@ -4,6 +4,7 @@ Email = Package.email.Email;
 MeteorFile = Package['meteor-file'].MeteorFile;
 CSV = Package['node-csv-npm'].CSV;
 RESTstop = Package.reststop2.RESTstop;
+headers = Package.headers.headers;
 Accounts = Package['accounts-base'].Accounts;
 Meteor = Package.meteor.Meteor;
 WebApp = Package.webapp.WebApp;

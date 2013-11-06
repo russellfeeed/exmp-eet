@@ -6,7 +6,8 @@
       "meteor-file": {},
       "incr-csv": {},
       "node-csv-npm": {},
-      "reststop2": {}
+      "reststop2": {},
+      "headers": {}
     },
     "packages": {
       "collectionFS": {
@@ -31,8 +32,13 @@
       },
       "reststop2": {
         "git": "https://github.com/BeDifferential/reststop2.git",
-        "tag": "v0.5.3",
-        "commit": "d19c4ecea14646a1fc41919fa0a8e16120dbd137"
+        "tag": "v0.5.4",
+        "commit": "12ff0306979d7b375cfa555fcaad9efafd3308ca"
+      },
+      "headers": {
+        "git": "https://github.com/gadicohen/meteor-headers.git",
+        "tag": "v0.0.7",
+        "commit": "e1b9121881575f07b1b5383a3f1f43262822c059"
       },
       "cfs-public-folder": {
         "git": "https://github.com/nooitaf/meteor-cfs-public-folder.git",

@@ -191,6 +191,11 @@
       "sourceMapRoot": "packages"
     },
     {
+      "path": "packages/headers.js",
+      "sourceMap": "packages/headers.js.map",
+      "sourceMapRoot": "packages"
+    },
+    {
       "path": "packages/session.js",
       "sourceMap": "packages/session.js.map",
       "sourceMapRoot": "packages"

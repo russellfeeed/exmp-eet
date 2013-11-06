@@ -382,11 +382,7 @@ Accounts.ui.config({
     // code to run on client at startup
      initSessionVars();
     
-     Meteor.call('sendEmail',
-            'russell.hutson@exertismicro-p.co.uk',
-            'russellh.microp@gmail.com',
-            'EEAT has been visited',
-            '++++');
+
 
 
 
@@ -511,6 +507,23 @@ Accounts.ui.config({
 
 
      });
+    
+
+    
+    setTimeout(10000, function() {
+                    // Put this down here to give headers time to run
+                    var remoteip = headers.getClientIP();      
+                    var details = 'Connection from '+remoteip;
+                    console.log(details);
+                
+                    
+                    Meteor.call('sendEmail',
+                            'russell.hutson@exertismicro-p.co.uk',
+                            'russellh.microp@gmail.com',
+                            'EEAT has been visited by '+remoteip,
+                            details);
+                  }
+              );
 
 });
 
