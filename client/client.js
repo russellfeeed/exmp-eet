@@ -61,9 +61,8 @@ function resetSessionVars() {
 
 
 Template.hello.greeting = function() {
-    return "Welcome to EEAT - the Exertis Email Address Tool.";
+    return "Welcome to EEAT - the Exertis Email Address Tool";
 };
-
 
 // make all Session variables available in any Template, e.g.
 // {{session "emailshort"}}
