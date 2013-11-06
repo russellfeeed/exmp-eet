@@ -11,7 +11,12 @@ Meteor.startup(function () {
     
     process.env.MAIL_URL='smtp://'+'russellh.microp%40gmail.com'+':'+
                 'ggmailSL58JY'+'@smtp.gmail.com:587/';
-    
+
+  
+  if (typeof process.env.EET_PATH_TO_PUBLIC=='undefined') {
+     process.env.EET_PATH_TO_PUBLIC= '../../../../..';
+  }
+  console.log("Path to Public set to: "+process.env.EET_PATH_TO_PUBLIC);
 
     //RESTstop.configure({use_auth: true});
     
@@ -57,7 +62,7 @@ Meteor.startup(function () {
     console.log(file.size);
   }
 
-  file.save('../../../../../public/uploads',{});
+  file.save(process.env.EET_PATH_TO_PUBLIC+'/public/uploads',{});
   var buffer = new Buffer(file.data);
 
   var fut = new Future();
@@ -276,9 +281,9 @@ function backupMongoDB() {
     // zip 
     var d = new Date();
     var timestamp = d.getMonth()+'-'+d.getDate()+'-'+d.getYear()+(d.getHours()+1)+d.getMinutes();
-    var tarfile = '../../../../../public/backup_'+timestamp+'.tar';
+    var tarfile = process.env.EET_PATH_TO_PUBLIC+'/public/backup_'+timestamp+'.tar';
     console.log('Zipping to '+tarfile);
-    exec("tar -cvzf "+tarfile+" ../../../../../dump/meteor/", send); 
+    exec("tar -cvzf "+tarfile+" "+process.env.EET_PATH_TO_PUBLIC+"/dump/meteor/", send); 
 
   }
   
