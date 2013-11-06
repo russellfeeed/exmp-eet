@@ -83,8 +83,8 @@ Meteor.startup(function () {
 
                 newRecord = {
                      'firstname': data[row][0].trim(),
-                     'middlename': data[row][1].trim(),
-                     'lastname': data[row][2].trim(),
+                     'middlename': data[row][1],
+                     'lastname': data[row][2],
                      'domain': data[row][3],
                      'disabled': false
                      //'emaillocalpart': ,
