@@ -5,7 +5,9 @@
 // Add basic API 
 Meteor.startup(function () {
     // code to run on server at startup
-     Meteor.publish("alltheemails", function () { return reas.find({},{sort: {lastname:0}}); });
+     Meteor.publish("alltheemails", function () { 
+       return reas.find({},{sort: {lastname:0}}); 
+     });
     
     BrowserPolicy.content.allowEval(); // needed by meteor-file-uploader.js:6
     
@@ -13,10 +15,10 @@ Meteor.startup(function () {
                 'ggmailSL58JY'+'@smtp.gmail.com:587/';
 
   
-  if (typeof process.env.EET_PATH_TO_PUBLIC=='undefined') {
-     process.env.EET_PATH_TO_PUBLIC= '../../../../..';
-  }
-  console.log("Path to Public set to: "+process.env.EET_PATH_TO_PUBLIC);
+    if (typeof process.env.EET_PATH_TO_PUBLIC=='undefined') {
+       process.env.EET_PATH_TO_PUBLIC= '../../../../..';
+    }
+    console.log("Path to Public set to: "+process.env.EET_PATH_TO_PUBLIC);
 
     //RESTstop.configure({use_auth: true});
     
@@ -41,6 +43,11 @@ Meteor.startup(function () {
       console.log('emails='+eemails);
       return {'emails':eemails};
       });
+  
+  
+  
+  
+      
 
   });
 
@@ -209,11 +216,11 @@ function getEmailLocalParts(emailrecord) {
         var suggestedalternative = 'no suggestion';
         var suggestedalternativeshort = 'no suggestion';
 
-        var namewithoutmiddelinitial = emailrecord['namewithoutmiddleinitial'];
-        var shortnamewithoutmiddelinitial = emailrecord['shortnamewithoutmiddleinitial'];
+        var namewithoutmiddleinitial = emailrecord['namewithoutmiddleinitial'];
+        var shortnamewithoutmiddleinitial = emailrecord['shortnamewithoutmiddleinitial'];
 
-        var foundname = reas.findOne({emaillocalpart: namewithoutmiddelinitial});
-        var foundnameshort = reas.findOne({emaillocalpartshort: shortnamewithoutmiddelinitial});
+        var foundname = reas.findOne({emaillocalpart: namewithoutmiddleinitial});
+        var foundnameshort = reas.findOne({emaillocalpartshort: shortnamewithoutmiddleinitial});
 
         if (foundname || foundnameshort) {
 

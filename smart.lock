@@ -37,8 +37,8 @@
       },
       "headers": {
         "git": "https://github.com/gadicohen/meteor-headers.git",
-        "tag": "v0.0.7",
-        "commit": "e1b9121881575f07b1b5383a3f1f43262822c059"
+        "tag": "v0.0.8",
+        "commit": "7da9c89103c5fe857eafeab38f97888343162b2c"
       },
       "cfs-public-folder": {
         "git": "https://github.com/nooitaf/meteor-cfs-public-folder.git",

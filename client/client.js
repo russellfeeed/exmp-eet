@@ -1,5 +1,7 @@
 
-Meteor.subscribe("alltheemails");
+Meteor.autorun(function() {
+  Meteor.subscribe("alltheemails");
+});
 
 var alloweddomains = [
     {domain: 'exertismicro-p.co.uk', company: 'Exertis Micro-P'},
@@ -466,11 +468,11 @@ Accounts.ui.config({
         var suggestedalternative = 'no suggestion';
         var suggestedalternativeshort = 'no suggestion';
 
-        var namewithoutmiddelinitial = Session.get('namewithoutmiddleinitial');
-        var shortnamewithoutmiddelinitial = Session.get('shortnamewithoutmiddleinitial');
+        var namewithoutmiddleinitial = Session.get('namewithoutmiddleinitial');
+        var shortnamewithoutmiddleinitial = Session.get('shortnamewithoutmiddleinitial');
 
-        var foundname = reas.findOne({emaillocalpart: namewithoutmiddelinitial});
-        var foundnameshort = reas.findOne({emaillocalpartshort: shortnamewithoutmiddelinitial});
+        var foundname = reas.findOne({emaillocalpart: namewithoutmiddleinitial});
+        var foundnameshort = reas.findOne({emaillocalpartshort: shortnamewithoutmiddleinitial});
 
         if (foundname || foundnameshort) {
 
@@ -508,10 +510,35 @@ Accounts.ui.config({
 
      });
     
+    
+    /*
+        // detect when user logs in and send an email
+      Deps.autorun(function () {
+      
+                  // notify by email
+                  var curuser = Meteor.user();  
+                  if (typeof curuser != 'undefined') {
+                            var emailbody = curuser.username+" ("+curuser.emails[0].address+"). Logged in";               
+                  
+                            Meteor.call('sendEmail',
+                                          ['russell.hutson@exertismicro-p.co.uk','russell@feeed.com'],
+                                          'russellh.microp@gmail.com',
+                                          'User Logged In: '+curuser.username,
+                                          emailbody);
+                    
+                  }
+                
+      }); // autorun
+      */
+    
 
     
-    setTimeout(10000, function() {
+    setTimeout(function() {
                     // Put this down here to give headers time to run
+                    Meteor.call('getReqHeaders', function(error, result) {
+                      headers.list = result;
+                    });
+      
                     var remoteip = headers.getClientIP();      
                     var details = 'Connection from '+remoteip;
                     console.log(details);
@@ -522,7 +549,7 @@ Accounts.ui.config({
                             'russellh.microp@gmail.com',
                             'EEAT has been visited by '+remoteip,
                             details);
-                  }
+                  }, 1000
               );
 
 });
